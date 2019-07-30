@@ -18,21 +18,11 @@ _(())\_)())(_))_  _ )(_))/(/(   )\ /(/(     )(()\ )(_)|(_)()\ _ /((_|()\
       ''')
 
 
-with open('result.csv', 'w') as f:
-    f.write("Anuncios ")
 
 # Open up a Firefox browser and navigate to web page
 driver = webdriver.Firefox()
 driver.get("https://es.wallapop.com/search?catIds=17000&kws=enduro")
 
-'''
-try:
-    element = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "myD"))
-    )
-finally:
-    driver.quit()
-'''
 
 print(driver.title)
 
