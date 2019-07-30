@@ -16,8 +16,13 @@ $ rm geckodriver-v0.24.0-linux64.tar.gz
 # Descarga librerías
 ```
 $ source venv/bin/activate
-$ pip3 install -r requirements.txt
+(venv) $ pip3 install -r requirements.txt
 ```
 
 # Ejecución
 `(venv) $ python3 crawler.py`
+
+# Salida entorno virtual
+
+`(venv) $ deactivate`
+
