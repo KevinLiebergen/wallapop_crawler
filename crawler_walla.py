@@ -23,8 +23,7 @@ with open('result.csv', 'w') as f:
 
 # Open up a Firefox browser and navigate to web page
 driver = webdriver.Firefox()
-#driver.get("https://es.wallapop.com/search?catIds=17000&kws=enduro")
-driver.get("https://www.vibbo.com/anuncios-toda-espana/motos.htm?ca=0_s&fPos=253&fOn=sb_searchtext")
+driver.get("https://es.wallapop.com/search?catIds=17000&kws=enduro")
 
 '''
 try:
