@@ -3,8 +3,8 @@
 Crawler creado mediante la librería Selenium de python.
 
 # Instalacion
-`$ git clone`
-<br>`$ cd `
+`$ git clone https://github.com/KevinLiebergen/wallapop_crawler.git`
+<br>`$ cd wallapop_crawler`
 
 Instalación Firefox driver
 ```
