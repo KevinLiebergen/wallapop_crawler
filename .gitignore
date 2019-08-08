@@ -2,3 +2,5 @@ venv/
 
 #Ficheros PyCharm
 .idea/
+
+geckodriver.log
