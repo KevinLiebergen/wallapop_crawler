@@ -5,6 +5,8 @@ Crawler creado mediante la librería Selenium de python.
 # Instalacion
 `$ git clone https://github.com/KevinLiebergen/wallapop_crawler.git`
 <br>`$ cd wallapop_crawler`
+<br>`$ pip3 install virtualenv`
+<br>`$ virtualenv venv`
 
 Instalación Firefox driver, 2 opciones:
 
