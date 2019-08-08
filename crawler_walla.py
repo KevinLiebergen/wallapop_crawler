@@ -1,13 +1,13 @@
 from selenium import webdriver
-import csv
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
+
+from bs4 import BeautifulSoup
 import time
 
 # Diseño por http://patorjk.com/software/taag/
-from setuptools.command.install import install
-
 print('''                                                                          
  (  (          (  (                                           (           
  )\))(   '   ) )\ )\   )                      (      ) (  (   )\  (  (    
@@ -19,22 +19,33 @@ _(())\_)())(_))_  _ )(_))/(/(   )\ /(/(     )(()\ )(_)|(_)()\ _ /((_|()\
                         |_|       |_|                                     
       ''')
 
-
-with open('resultado.csv','w') as f:
-    f.write("Titulo, precio, descripcion \n")
-
-
-
 # Abre un navegador de Firefox y navega por la pagina web
 driver = webdriver.Firefox()
+
+
 #driver.get("https://es.wallapop.com/search?catIds=17000&kws=enduro")
 driver.get("https://es.wallapop.com/coches-segunda-mano")
+
+# wait explicito que espera a que salga el popup de las cookies para aceptarlo, espera a que salga el popup
+try:
+    wait = WebDriverWait(driver, 5)
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".qc-cmp-button")))
+    print("La pagina va a aceptar las cookies\n")
+except TimeoutException:
+    print("Tardando demasiado tiempo\n")
+
+# Hace click en el boton aceptar cookies
+driver.find_element_by_css_selector('.qc-cmp-button').click()
+
+# Scroll hacia abajo para que se carguen todos los anuncios
+driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
 
 print(driver.title)
 print("-------------------------------------")
 
 
-time.sleep(10)
+#time.sleep(5)
 
 
 # Extrae los elementos basados en los css
@@ -51,10 +62,20 @@ for i in range(num_page_items):
     print("Descripcion: " + descripcion[i].text)
     print("###########################")
 
-'''
+
+
+''' Escribir a csv
 with open('resultado.csv','a') as f:
+    f.write("Titulo, precio, descripcion \n")
     for i in range(num_page_items):
         f.write(titulo[i].text + "," + precio[i].text + ", " + descripcion[i].text + "\n")
+'''
+
+''' soup
+soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+for link in soup.find_all('a'):
+    print(link.get('href'))
 '''
 
 # Cierra el navegador
