@@ -24,6 +24,19 @@ def imprimir_intro():
           ''')
 
 
+def preguntarBusqueda():
+    print("Especifique que buscar")
+    busqueda = input()
+
+    print("¿Quieres filtrar los productos por precio? [s/n]")
+    precio_boolean = input()
+
+    while not(precio_boolean == 's' or precio_boolean == 'n' ):
+        print("¿Quieres filtrar los productos por precio? [s/n]")
+        precio_boolean = input()
+
+    return busqueda
+
 def aceptar_cookies():
     # wait explicito que espera a que salga el popup de las cookies para aceptarlo
     try:
@@ -44,8 +57,8 @@ def aceptar_cookies():
 
 
 def click_mas_productos():
-    boton_mas_prod = driver.find_element_by_css_selector('.Button')
-    driver.execute_script("arguments[0].click();", boton_mas_prod)
+    boton_mas_productos = driver.find_element_by_css_selector('.Button')
+    driver.execute_script("arguments[0].click();", boton_mas_productos)
 
 
 def scroll_hasta_final():
@@ -74,48 +87,50 @@ def scroll_hasta_final():
         last_height = new_height
 
 
-def imprimir_elementos():
-    num_page_items = len(titulo)
+def extraer_elementos():
+
+    diccionario_productos = {
+        "titulo": driver.find_elements_by_css_selector('.product-info-title'),
+        "precio": driver.find_elements_by_css_selector('.product-info-price'),
+        "descripcion": driver.find_elements_by_css_selector('.product-info-description')
+    }
+
+    return diccionario_productos
+
+
+def imprimir_elementos(producto):
+    num_page_items = len(producto["titulo"])
 
     for i in range(num_page_items):
-        print("Titulo: " + titulo[i].text)
-        print("Precio: " + precio[i].text)
-        print("Descripcion: " + descripcion[i].text)
+        print("Titulo: " + producto["titulo"][i].text)
+        print("Precio: " + producto["precio"][i].text)
+        print("Descripcion: " + producto["descripcion"][i].text)
         print("###########################")
 
 
-def escribir_a_csv():
+def escribir_a_csv(producto):
     with open('resultado.csv', 'a') as f:
         f.write("Titulo, precio, descripcion \n")
         for i in range(num_page_items):
-            f.write(titulo[i].text + "," + precio[i].text + ", " + descripcion[i].text + "\n")
+            f.write(producto["titulo"][i].text+ "," + producto["precio"][i].text + ", " + producto["descripcion"][i].text + "\n")
 
 
 num_page_items = 0
 
 imprimir_intro()
+buscar = preguntarBusqueda()
 
 # Abre un navegador de Firefox y navega por la pagina web
 driver = webdriver.Firefox()
-#driver.get("https://es.wallapop.com/search?catIds=17000&kws=motos")
-driver.get("https://es.wallapop.com/search?keywords=compiladores&latitude=40.4893538&longitude=-3.6827461")
-
+driver.get("https://es.wallapop.com/search?keywords=" + buscar + "&latitude=40.4893538&longitude=-3.6827461")
 
 aceptar_cookies()
-
 click_mas_productos()
-
 scroll_hasta_final()
+productos = extraer_elementos()
+imprimir_elementos(productos)
 
-# Extrae los elementos basados en los css
-titulo = driver.find_elements_by_css_selector('.product-info-title')
-precio = driver.find_elements_by_css_selector('.product-info-price')
-descripcion = driver.find_elements_by_css_selector('.product-info-description')
-
-
-imprimir_elementos()
-
-#escribir_a_csv()
+#escribir_a_csv(producto)
 
 '''soup
 soup = BeautifulSoup(driver.page_source, 'html.parser')
