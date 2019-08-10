@@ -29,6 +29,9 @@ def preguntarBusqueda():
     print("Especifique que buscar: ", end='')
     busqueda = input()
 
+    # print("Limite de kilometros a buscar (50000 max)")
+    # distancia = int(input())
+
     print("¿Quieres filtrar los productos por precio? [s/n]: ", end='')
     precio_boolean = input()
 
@@ -79,7 +82,7 @@ def click_mas_productos():
 
 
 def scroll_hasta_final():
-    SCROLL_PAUSE_TIME = 1
+    scroll_pause_time = 1
 
     try:
         # Get scroll height
@@ -95,7 +98,7 @@ def scroll_hasta_final():
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
         # Wait to load page
-        time.sleep(SCROLL_PAUSE_TIME)
+        time.sleep(scroll_pause_time)
 
         # Calculate new scroll height and compare with last scroll height
         new_height = driver.execute_script("return document.body.scrollHeight")
@@ -120,14 +123,19 @@ def clickear_cada_producto():
 
 def extraer_elementos():
 
+    localizacion = driver.find_element_by_css_selector('.card-product-detail-location').text.split(',')
+
     diccionario_producto = {
         "titulo": driver.find_elements_by_css_selector('.card-product-detail-title')[0].text,
         "precio": driver.find_elements_by_css_selector('.card-product-detail-price')[0].text,
         "descripcion": driver.find_elements_by_css_selector('.card-product-detail-description')[0].text,
         # Para la localizacion se encuentra ciudad y barrio en una misma etiqueta, se separa por una coma, el
-        # primer texto es el barrio y el segundo la ciudad
-        "barrio": driver.find_element_by_css_selector('.card-product-detail-location').text.split(',')[0],
-        "ciudad": driver.find_element_by_css_selector('.card-product-detail-location').text.split(',')[1].lstrip(),
+        # primer texto es el barrio y el segundo la ciudad (he puesto ultimo xq 1 daba error)
+        "barrio": localizacion[0],
+        "ciudad": localizacion[len(localizacion) - 1].lstrip(),
+        "fechaPublicacion": driver.find_element_by_css_selector('.card-product-detail-user-stats-published').text,
+        "puntuacion": driver.find_element_by_css_selector('.card-profile-rating').get_attribute("data-score"),
+        "imagenURL": driver.find_element_by_css_selector('#js-card-slider-main > li:nth-child(1) > img:nth-child(1)').get_attribute("src"),
         "url": driver.current_url
     }
     imprimir_elementos(diccionario_producto)
@@ -140,6 +148,9 @@ def imprimir_elementos(producto):
     print("Descripcion: " + producto["descripcion"])
     print("Barrio: " + producto["barrio"])
     print("Ciudad: " + producto["ciudad"])
+    print("Fecha publicacion: " + producto["fechaPublicacion"])
+    print("Puntuacion vendedor: " + producto["puntuacion"])
+    print("Imagen: " + producto["imagenURL"])
     print("URL: " + producto["url"])
     print("###########################")
 
@@ -148,7 +159,8 @@ def escribir_a_csv(producto):
     with open('resultado.csv', 'a') as f:
         f.write("Titulo, precio, descripcion \n")
         for i in range(len(producto["titulo"])):
-            f.write(producto["titulo"][i].text+"," + producto["precio"][i].text + ", " + producto["descripcion"][i].text + "\n")
+            f.write(producto["titulo"][i].text+"," + producto["precio"][i].text + ", "
+                    + producto["descripcion"][i].text + "\n")
 
 
 imprimir_intro()
@@ -163,7 +175,7 @@ click_mas_productos()
 scroll_hasta_final()
 contador = clickear_cada_producto()
 
-#escribir_a_csv(productos)
+# escribir_a_csv(productos)
 
 
 print(str(contador) + " productos encontrados")
