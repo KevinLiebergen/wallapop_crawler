@@ -43,10 +43,11 @@ def preguntarBusqueda():
         precio_maximo = input()
 
         url_busqueda = "https://es.wallapop.com/search?keywords="+busqueda+"&min_sale_price="+precio_minimo +\
-                       "&max_sale_price="+precio_maximo+"&latitude=40.4893538&longitude=-3.6827461"
+                       "&max_sale_price="+precio_maximo     # +"&latitude=40.4146500&longitude=-3.7004000"
 
     else:
-        url_busqueda = "https://es.wallapop.com/search?keywords="+busqueda+"&latitude=40.4893538&longitude=-3.6827461"
+        url_busqueda = "https://es.wallapop.com/search?keywords="+busqueda
+        # +"&latitude=40.4146500&longitude=-3.7004000"
 
     print("###########################")
 
@@ -120,21 +121,27 @@ def clickear_cada_producto():
 def extraer_elementos():
 
     diccionario_producto = {
-        "titulo": driver.find_elements_by_css_selector('.card-product-detail-title'),
-        "precio": driver.find_elements_by_css_selector('.card-product-detail-price'),
-        "descripcion": driver.find_elements_by_css_selector('.card-product-detail-description')
+        "titulo": driver.find_elements_by_css_selector('.card-product-detail-title')[0].text,
+        "precio": driver.find_elements_by_css_selector('.card-product-detail-price')[0].text,
+        "descripcion": driver.find_elements_by_css_selector('.card-product-detail-description')[0].text,
+        # Para la localizacion se encuentra ciudad y barrio en una misma etiqueta, se separa por una coma, el
+        # primer texto es el barrio y el segundo la ciudad
+        "barrio": driver.find_element_by_css_selector('.card-product-detail-location').text.split(',')[0],
+        "ciudad": driver.find_element_by_css_selector('.card-product-detail-location').text.split(',')[1].lstrip(),
+        "url": driver.current_url
     }
     imprimir_elementos(diccionario_producto)
 
 
 def imprimir_elementos(producto):
-    num_page_items = len(producto["titulo"])
 
-    for i in range(num_page_items):
-        print("Titulo: " + producto["titulo"][i].text)
-        print("Precio: " + producto["precio"][i].text)
-        print("Descripcion: " + producto["descripcion"][i].text)
-        print("###########################")
+    print("Titulo: " + producto["titulo"])
+    print("Precio: " + producto["precio"])
+    print("Descripcion: " + producto["descripcion"])
+    print("Barrio: " + producto["barrio"])
+    print("Ciudad: " + producto["ciudad"])
+    print("URL: " + producto["url"])
+    print("###########################")
 
 
 def escribir_a_csv(producto):
