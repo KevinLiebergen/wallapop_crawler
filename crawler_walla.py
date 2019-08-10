@@ -6,6 +6,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import ElementNotInteractableException
 import sys
 import time
+import re
 
 from bs4 import BeautifulSoup
 
@@ -102,6 +103,14 @@ def scroll_hasta_final():
         last_height = new_height
 
 
+def clickear_cada_producto():
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+    for link in soup.find_all('a', href=re.compile('/item')):
+        print(link['href'])
+        driver.get("https://es.wallapop.com" + link['href'])
+
+
 def extraer_elementos():
 
     diccionario_productos = {
@@ -126,8 +135,8 @@ def imprimir_elementos(producto):
 def escribir_a_csv(producto):
     with open('resultado.csv', 'a') as f:
         f.write("Titulo, precio, descripcion \n")
-        for i in range(num_page_items):
-            f.write(producto["titulo"][i].text+ "," + producto["precio"][i].text + ", " + producto["descripcion"][i].text + "\n")
+        for i in range(len(producto["titulo"])):
+            f.write(producto["titulo"][i].text+"," + producto["precio"][i].text + ", " + producto["descripcion"][i].text + "\n")
 
 
 num_page_items = 0
@@ -142,18 +151,14 @@ driver.get(buscar)
 aceptar_cookies()
 click_mas_productos()
 scroll_hasta_final()
+clickear_cada_producto()
 productos = extraer_elementos()
 imprimir_elementos(productos)
 
-#escribir_a_csv(producto)
+#escribir_a_csv(productos)
 
-'''soup
-soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-for link in soup.find_all('a'):
-    print(link.get('href'))
-'''
-
+print( num_page_items + " productos encontrados")
 
 # Cierra el navegador
 driver.close()
