@@ -25,17 +25,32 @@ def imprimir_intro():
 
 
 def preguntarBusqueda():
-    print("Especifique que buscar")
+    print("Especifique que buscar: ", end='')
     busqueda = input()
 
-    print("¿Quieres filtrar los productos por precio? [s/n]")
+    print("¿Quieres filtrar los productos por precio? [s/n]: ", end='')
     precio_boolean = input()
 
     while not(precio_boolean == 's' or precio_boolean == 'n' ):
-        print("¿Quieres filtrar los productos por precio? [s/n]")
+        print("¿Quieres filtrar los productos por precio? [s/n]: ", end='')
         precio_boolean = input()
 
-    return busqueda
+    if precio_boolean == 's':
+        print("Precio minimo: ", end='')
+        precio_minimo = input()
+        print("Precio maximo: ", end='')
+        precio_maximo = input()
+
+        url_busqueda = "https://es.wallapop.com/search?keywords="+busqueda+"&min_sale_price="+precio_minimo +\
+                       "&max_sale_price="+precio_maximo+"&latitude=40.4893538&longitude=-3.6827461"
+
+    else:
+        url_busqueda = "https://es.wallapop.com/search?keywords="+busqueda+"&latitude=40.4893538&longitude=-3.6827461"
+
+    print("###########################")
+
+    return url_busqueda
+
 
 def aceptar_cookies():
     # wait explicito que espera a que salga el popup de las cookies para aceptarlo
@@ -122,7 +137,7 @@ buscar = preguntarBusqueda()
 
 # Abre un navegador de Firefox y navega por la pagina web
 driver = webdriver.Firefox()
-driver.get("https://es.wallapop.com/search?keywords=" + buscar + "&latitude=40.4893538&longitude=-3.6827461")
+driver.get(buscar)
 
 aceptar_cookies()
 click_mas_productos()
