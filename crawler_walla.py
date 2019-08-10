@@ -104,22 +104,27 @@ def scroll_hasta_final():
 
 
 def clickear_cada_producto():
+    producto = 0
     soup = BeautifulSoup(driver.page_source, 'html.parser')
 
     for link in soup.find_all('a', href=re.compile('/item')):
         print(link['href'])
         driver.get("https://es.wallapop.com" + link['href'])
 
+        extraer_elementos()
+        producto += 1
+
+    return producto
+
 
 def extraer_elementos():
 
-    diccionario_productos = {
-        "titulo": driver.find_elements_by_css_selector('.product-info-title'),
-        "precio": driver.find_elements_by_css_selector('.product-info-price'),
-        "descripcion": driver.find_elements_by_css_selector('.product-info-description')
+    diccionario_producto = {
+        "titulo": driver.find_elements_by_css_selector('.card-product-detail-title'),
+        "precio": driver.find_elements_by_css_selector('.card-product-detail-price'),
+        "descripcion": driver.find_elements_by_css_selector('.card-product-detail-description')
     }
-
-    return diccionario_productos
+    imprimir_elementos(diccionario_producto)
 
 
 def imprimir_elementos(producto):
@@ -139,8 +144,6 @@ def escribir_a_csv(producto):
             f.write(producto["titulo"][i].text+"," + producto["precio"][i].text + ", " + producto["descripcion"][i].text + "\n")
 
 
-num_page_items = 0
-
 imprimir_intro()
 buscar = preguntarBusqueda()
 
@@ -151,14 +154,12 @@ driver.get(buscar)
 aceptar_cookies()
 click_mas_productos()
 scroll_hasta_final()
-clickear_cada_producto()
-productos = extraer_elementos()
-imprimir_elementos(productos)
+contador = clickear_cada_producto()
 
 #escribir_a_csv(productos)
 
 
-print( num_page_items + " productos encontrados")
+print(str(contador) + " productos encontrados")
 
 # Cierra el navegador
 driver.close()
