@@ -41,7 +41,7 @@ Este script implementa la opción de enviar los anuncios a un grupo privado de T
 <br>[Video resumen como crear tu bot y conocer tu token y chat id](https://www.youtube.com/watch?v=UhZtrhV7t3U)
 
 <br>Para deshabilitar esta opción únicamente es necesario comentar las llamadas a los métodos `configurar_telegram()
-` y `enviar_mensajes_a_telegram(producto["url"])` cerca de las líneas 182 y 158 respectivamente.
+` y `enviar_mensajes_a_telegram(producto["url"])` __cerca__ de las líneas 203 y 178 respectivamente.
 
 # Salida entorno virtual
 

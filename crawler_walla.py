@@ -123,19 +123,22 @@ def scroll_hasta_final():
         last_height = new_height
 
 
-def clickear_cada_producto():
+def clickear_cada_producto(urls):
     producto = 0
     soup = BeautifulSoup(driver.page_source, 'html.parser')
 
     for link in soup.find_all('a', href=re.compile('/item')):
-        driver.get("https://es.wallapop.com" + link['href'])
 
-        extraer_elementos()
-        producto += 1
-        if producto == productos_limitar:
-            break
+        if "https://es.wallapop.com" + link['href'] not in urls:
+            driver.get("https://es.wallapop.com" + link['href'])
 
-    return producto
+            extraer_elementos()
+            producto += 1
+            urls += ["https://es.wallapop.com" + link['href']]
+            if producto == productos_limitar:
+                break
+
+    return producto, urls
 
 
 def extraer_elementos():
@@ -196,6 +199,7 @@ def escribir_a_csv(producto):
                     + producto["descripcion"][i].text + "\n")
 
 
+array_urls = []
 telebot, chat_id = configurar_telegram()
 imprimir_intro()
 buscar, productos_limitar = preguntar_busqueda()
@@ -209,14 +213,16 @@ while True:
     aceptar_cookies()
     click_mas_productos()
     scroll_hasta_final()
-    contador = clickear_cada_producto()
+    contador, array_urls = clickear_cada_producto(array_urls)
 
     # escribir_a_csv(productos)
 
-    print(str(contador) + " productos encontrados")
+    print(str(contador) + " nuevos productos encontrados")
 
     # Cierra el navegador
     driver.close()
 
     print("Esperando " + str(segundos_dormidos) + " segundos para volver a buscar")
+    print("###########################")
+
     time.sleep(segundos_dormidos)
