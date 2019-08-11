@@ -27,7 +27,7 @@ $ source venv/bin/activate
 ```
 
 # Ejecución
-`(venv) $ python3 crawler.py`
+`(venv) $ python3 crawler_walla.py`
 
 # Salida entorno virtual
 
