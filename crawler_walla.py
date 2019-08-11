@@ -4,12 +4,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import ElementNotInteractableException
+from bs4 import BeautifulSoup
 import sys
 import time
 import re
 import telebot
-
-from bs4 import BeautifulSoup
 
 
 def imprimir_intro():
@@ -26,15 +25,12 @@ def imprimir_intro():
           ''')
 
 
-def preguntarBusqueda():
+def preguntar_busqueda():
     print("Especifique que buscar: ", end='')
     busqueda = input()
 
-    # print("Limite de kilometros a buscar (50000 max)")
-    # distancia = int(input())
-
-    print("¿Quieres filtrar los productos por precio? [s/n]: ", end='')
-    precio_boolean = input()
+    # por defecto a para que se meta en el while y pregunta hasta conseguir s o n
+    precio_boolean = 'a'
 
     while not(precio_boolean == 's' or precio_boolean == 'n' ):
         print("¿Quieres filtrar los productos por precio? [s/n]: ", end='')
@@ -53,9 +49,28 @@ def preguntarBusqueda():
         url_busqueda = "https://es.wallapop.com/search?keywords="+busqueda
         # +"&latitude=40.4146500&longitude=-3.7004000"
 
+    # Igual que antes
+    limitar_boolean = 'a'
+
+    while not(limitar_boolean == 's' or limitar_boolean == 'n'):
+        print("¿Limitar el número de productos? [s/n]: ", end='')
+        limitar_boolean = input()
+
+    if limitar_boolean == 's':
+        num_productos_limitar = 0
+        while not(num_productos_limitar > 0):
+            print("Numero de productos a limitar [> 0]: ", end='')
+            try:
+                num_productos_limitar = int(input())
+            except ValueError:
+                num_productos_limitar = 0
+
+    else:
+        num_productos_limitar = 100
+
     print("###########################")
 
-    return url_busqueda
+    return url_busqueda, num_productos_limitar
 
 
 def aceptar_cookies():
@@ -117,6 +132,8 @@ def clickear_cada_producto():
 
         extraer_elementos()
         producto += 1
+        if producto == productos_limitar:
+            break
 
     return producto
 
@@ -159,8 +176,8 @@ def imprimir_elementos(producto):
 
 
 def configurar_telegram():
-    token = ' '
-    ch_id = ' '
+    token = ''
+    ch_id = ''
     tb = telebot.TeleBot(token)
 
     return tb, ch_id
@@ -181,20 +198,25 @@ def escribir_a_csv(producto):
 
 telebot, chat_id = configurar_telegram()
 imprimir_intro()
-buscar = preguntarBusqueda()
+buscar, productos_limitar = preguntar_busqueda()
 
-# Abre un navegador de Firefox y navega por la pagina web
-driver = webdriver.Firefox()
-driver.get(buscar)
+segundos_dormidos = 60
+while True:
+    # Abre un navegador de Firefox y navega por la pagina web
+    driver = webdriver.Firefox()
+    driver.get(buscar)
 
-aceptar_cookies()
-click_mas_productos()
-scroll_hasta_final()
-contador = clickear_cada_producto()
+    aceptar_cookies()
+    click_mas_productos()
+    scroll_hasta_final()
+    contador = clickear_cada_producto()
 
-# escribir_a_csv(productos)
+    # escribir_a_csv(productos)
 
-print(str(contador) + " productos encontrados")
+    print(str(contador) + " productos encontrados")
 
-# Cierra el navegador
-driver.close()
+    # Cierra el navegador
+    driver.close()
+
+    print("Esperando " + str(segundos_dormidos) + " segundos para volver a buscar")
+    time.sleep(segundos_dormidos)
