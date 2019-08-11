@@ -7,6 +7,7 @@ from selenium.common.exceptions import ElementNotInteractableException
 import sys
 import time
 import re
+import telebot
 
 from bs4 import BeautifulSoup
 
@@ -112,7 +113,6 @@ def clickear_cada_producto():
     soup = BeautifulSoup(driver.page_source, 'html.parser')
 
     for link in soup.find_all('a', href=re.compile('/item')):
-        print(link['href'])
         driver.get("https://es.wallapop.com" + link['href'])
 
         extraer_elementos()
@@ -138,6 +138,7 @@ def extraer_elementos():
         "imagenURL": driver.find_element_by_css_selector('#js-card-slider-main > li:nth-child(1) > img:nth-child(1)').get_attribute("src"),
         "url": driver.current_url
     }
+
     imprimir_elementos(diccionario_producto)
 
 
@@ -154,6 +155,21 @@ def imprimir_elementos(producto):
     print("URL: " + producto["url"])
     print("###########################")
 
+    enviar_mensajes_a_telegram(producto["url"])
+
+
+def configurar_telegram():
+    token = ' '
+    ch_id = ' '
+    tb = telebot.TeleBot(token)
+
+    return tb, ch_id
+
+
+def enviar_mensajes_a_telegram(url):
+
+    telebot.send_message(chat_id, url)
+
 
 def escribir_a_csv(producto):
     with open('resultado.csv', 'a') as f:
@@ -163,6 +179,7 @@ def escribir_a_csv(producto):
                     + producto["descripcion"][i].text + "\n")
 
 
+telebot, chat_id = configurar_telegram()
 imprimir_intro()
 buscar = preguntarBusqueda()
 
@@ -176,7 +193,6 @@ scroll_hasta_final()
 contador = clickear_cada_producto()
 
 # escribir_a_csv(productos)
-
 
 print(str(contador) + " productos encontrados")
 
