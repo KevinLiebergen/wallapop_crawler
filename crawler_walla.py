@@ -77,7 +77,7 @@ def preguntar_busqueda():
 def aceptar_cookies():
     # wait explicito que espera a que salga el popup de las cookies para aceptarlo
     try:
-        wait = WebDriverWait(driver, 10)
+        wait = WebDriverWait(driver, 15)
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".qc-cmp-button")))
         time.sleep(2)
 
