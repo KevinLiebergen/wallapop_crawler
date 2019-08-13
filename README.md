@@ -1,6 +1,10 @@
 # Wallapop crawler
 
-Crawler creado mediante la librería Selenium de python. Se ha añadido la funcionalidad de que cada anuncio que se visita se envía la URL del producto a tu grupo propio de Telegram (Mirar en configuración de Telegram)
+Crawler creado mediante la librería Selenium de python. Se han implementado funcionalidades para:
+- Que cada anuncio que se visita se envía la URL del producto a tu grupo propio de Telegram (Mirar en configuración de Telegram).
+- Anuncios crawleados se guardan en un csv.
+- Se muestra por terminal los productos.
+- Los productos se guarden a una base de datos con sus respectivos campos.
 
 # Instalacion
 `$ git clone https://github.com/KevinLiebergen/wallapop_crawler.git`
@@ -45,6 +49,8 @@ Este script implementa la opción de enviar los anuncios a un grupo privado de T
 
 # Conexión base de datos
 
+Se ha implementado una opción para conectar los productos crawleados a una base de datos.
+
 ### Instalación base de datos mysql
 
 ```bash
@@ -55,7 +61,7 @@ $ sudo mysql_secure_installation
 
 ### Configuración base de datos
 
-Configuro una contraseña para acceder a la base de datos, creo la base de datos crawler con la table productos con sus respectivos campos.
+Configuro una contraseña para acceder a la base de datos, creo la base de datos `crawler` con la tabla `productos` con sus respectivos campos.
 
 `$ sudo mysql`
 ```mysql
