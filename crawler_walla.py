@@ -77,7 +77,7 @@ def preguntar_busqueda():
 def aceptar_cookies():
     # wait explicito que espera a que salga el popup de las cookies para aceptarlo
     try:
-        wait = WebDriverWait(driver, 10)
+        wait = WebDriverWait(driver, 15)
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".qc-cmp-button")))
         time.sleep(2)
 
@@ -212,19 +212,25 @@ def enviar_mensajes_a_telegram(url):
     telebot.send_message(chat_id, url)
 
 
-def escribir_a_csv(producto):
+def cabecera_csv():
     with open('resultado.csv', 'w') as f:
-        f.write("Titulo, Precio, Descripcion, Barrio, Ciudad, Fecha publicacion, Puntuacion vendedor, Imagen, URL \n")
-        for i in range(len(producto["titulo"])):
-            f.write(producto["titulo"] + "," + producto["precio"] + ", "
-                    + producto["descripcion"] + "," + producto["barrio"] + ", " + producto["barrio"] + ","
-                    + producto["ciudad"] + "," + producto["fechaPublicacion"] + ", " + producto["puntuacion"] + ","
-                    + producto["imagenURL"] + "," + producto["url"] + "\n")
+        f.write("Titulo, Precio, Barrio, Ciudad, Fecha publicacion, Puntuacion vendedor, Imagen, URL \n")
+
+
+def escribir_a_csv(producto):
+    with open('resultado.csv', 'a') as f:
+        f.write(producto["titulo"] + "," + producto["precio"] + "," + producto["barrio"] + ","
+                + producto["ciudad"] + "," + producto["fechaPublicacion"] + ", " + producto["puntuacion"]
+                + "," + producto["imagenURL"] + "," + producto["url"] + "\n")
 
 
 array_urls = []
+
+#Iniciar telegram, base de datos y cabecera csv
 telebot, chat_id = configurar_telegram()
 cursor, db = configurar_bbdd()
+cabecera_csv()
+
 imprimir_intro()
 buscar, productos_limitar = preguntar_busqueda()
 

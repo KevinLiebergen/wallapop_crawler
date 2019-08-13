@@ -43,6 +43,29 @@ Este script implementa la opción de enviar los anuncios a un grupo privado de T
 <br>Para deshabilitar esta opción únicamente es necesario comentar las llamadas a los métodos `configurar_telegram()
 ` y `enviar_mensajes_a_telegram(producto["url"])` __cerca__ de las líneas 203 y 178 respectivamente.
 
+# Conexión base de datos
+
+### Instalación base de datos mysql
+
+```bash
+$ sudo apt update
+$ sudo apt install mysql-server
+$ sudo mysql_secure_installation
+```
+
+### Configuración base de datos
+
+Configuro una contraseña para acceder a la base de datos, creo la base de datos crawler con la table productos con sus respectivos campos.
+
+`$ sudo mysql`
+```mysql
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
+mysql> CREATE DATABASE crawler;
+mysql> CREATE TABLE productos (Titulo VARCHAR(30), Precio INT, Descripcion VARCHAR(400), Barrio INT, Ciudad VARCHAR(50), Fecha_publicacion VARCHAR(50), Puntuacion_vendedor VARCHAR(4), Imagen VARCHAR(300), url VARCHAR(300) );
+mysql> exit
+```
+
+
 # Salida entorno virtual
 
 `(venv) $ deactivate`
