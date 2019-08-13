@@ -9,6 +9,7 @@ import sys
 import time
 import re
 import telebot
+import pymysql
 
 
 def imprimir_intro():
@@ -32,7 +33,7 @@ def preguntar_busqueda():
     # por defecto a para que se meta en el while y pregunta hasta conseguir s o n
     precio_boolean = 'a'
 
-    while not(precio_boolean == 's' or precio_boolean == 'n' ):
+    while not (precio_boolean == 's' or precio_boolean == 'n'):
         print("¿Quieres filtrar los productos por precio? [s/n]: ", end='')
         precio_boolean = input()
 
@@ -42,23 +43,23 @@ def preguntar_busqueda():
         print("Precio maximo: ", end='')
         precio_maximo = input()
 
-        url_busqueda = "https://es.wallapop.com/search?keywords="+busqueda+"&min_sale_price="+precio_minimo +\
-                       "&max_sale_price="+precio_maximo     # +"&latitude=40.4146500&longitude=-3.7004000"
+        url_busqueda = "https://es.wallapop.com/search?keywords=" + busqueda + "&min_sale_price=" + precio_minimo + \
+                       "&max_sale_price=" + precio_maximo  # +"&latitude=40.4146500&longitude=-3.7004000"
 
     else:
-        url_busqueda = "https://es.wallapop.com/search?keywords="+busqueda
+        url_busqueda = "https://es.wallapop.com/search?keywords=" + busqueda
         # +"&latitude=40.4146500&longitude=-3.7004000"
 
     # Igual que antes
     limitar_boolean = 'a'
 
-    while not(limitar_boolean == 's' or limitar_boolean == 'n'):
+    while not (limitar_boolean == 's' or limitar_boolean == 'n'):
         print("¿Limitar el número de productos? [s/n]: ", end='')
         limitar_boolean = input()
 
     if limitar_boolean == 's':
         num_productos_limitar = 0
-        while not(num_productos_limitar > 0):
+        while not (num_productos_limitar > 0):
             print("Numero de productos a limitar [> 0]: ", end='')
             try:
                 num_productos_limitar = int(input())
@@ -81,7 +82,7 @@ def aceptar_cookies():
         time.sleep(2)
 
         # Hace click en el boton aceptar cookies
-        driver.find_element_by_css_selector('.qc-cmp-button').click()
+        driver.find_elements_by_css_selector('.qc-cmp-button')[1].click()
 
     except TimeoutException:
         print("Tardando demasiado tiempo\n")
@@ -142,7 +143,6 @@ def clickear_cada_producto(urls):
 
 
 def extraer_elementos():
-
     localizacion = driver.find_element_by_css_selector('.card-product-detail-location').text.split(',')
 
     diccionario_producto = {
@@ -155,7 +155,8 @@ def extraer_elementos():
         "ciudad": localizacion[len(localizacion) - 1].lstrip(),
         "fechaPublicacion": driver.find_element_by_css_selector('.card-product-detail-user-stats-published').text,
         "puntuacion": driver.find_element_by_css_selector('.card-profile-rating').get_attribute("data-score"),
-        "imagenURL": driver.find_element_by_css_selector('#js-card-slider-main > li:nth-child(1) > img:nth-child(1)').get_attribute("src"),
+        "imagenURL": driver.find_element_by_css_selector(
+            '#js-card-slider-main > li:nth-child(1) > img:nth-child(1)').get_attribute("src"),
         "url": driver.current_url
     }
 
@@ -163,7 +164,6 @@ def extraer_elementos():
 
 
 def imprimir_elementos(producto):
-
     print("Titulo: " + producto["titulo"])
     print("Precio: " + producto["precio"])
     print("Descripcion: " + producto["descripcion"])
@@ -176,6 +176,28 @@ def imprimir_elementos(producto):
     print("###########################")
 
     enviar_mensajes_a_telegram(producto["url"])
+    escribir_a_csv(producto)
+    #guardar_elemento_bbdd(producto)
+
+
+def configurar_bbdd():
+    db = pymysql.connect(
+        host="localhost", port=3306, user="root",
+        passwd="root", db="crawler"
+    )
+    cursor = db.cursor()
+
+    return cursor, db
+
+
+def guardar_elemento_bbdd(produc):
+
+    try:
+        cursor.execute()
+
+        db.commit()
+    except:
+        db.rollback()
 
 
 def configurar_telegram():
@@ -187,20 +209,22 @@ def configurar_telegram():
 
 
 def enviar_mensajes_a_telegram(url):
-
     telebot.send_message(chat_id, url)
 
 
 def escribir_a_csv(producto):
-    with open('resultado.csv', 'a') as f:
-        f.write("Titulo, precio, descripcion \n")
+    with open('resultado.csv', 'w') as f:
+        f.write("Titulo, Precio, Descripcion, Barrio, Ciudad, Fecha publicacion, Puntuacion vendedor, Imagen, URL \n")
         for i in range(len(producto["titulo"])):
-            f.write(producto["titulo"][i].text+"," + producto["precio"][i].text + ", "
-                    + producto["descripcion"][i].text + "\n")
+            f.write(producto["titulo"] + "," + producto["precio"] + ", "
+                    + producto["descripcion"] + "," + producto["barrio"] + ", " + producto["barrio"] + ","
+                    + producto["ciudad"] + "," + producto["fechaPublicacion"] + ", " + producto["puntuacion"] + ","
+                    + producto["imagenURL"] + "," + producto["url"] + "\n")
 
 
 array_urls = []
 telebot, chat_id = configurar_telegram()
+cursor, db = configurar_bbdd()
 imprimir_intro()
 buscar, productos_limitar = preguntar_busqueda()
 
@@ -214,8 +238,6 @@ while True:
     click_mas_productos()
     scroll_hasta_final()
     contador, array_urls = clickear_cada_producto(array_urls)
-
-    # escribir_a_csv(productos)
 
     print(str(contador) + " nuevos productos encontrados")
 
