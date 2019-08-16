@@ -9,6 +9,7 @@ import sys
 import time
 import re
 import telebot
+import warnings
 import pymysql
 
 
@@ -50,6 +51,10 @@ def preguntar_busqueda():
         url_busqueda = "https://es.wallapop.com/search?keywords=" + busqueda
         # +"&latitude=40.4146500&longitude=-3.7004000"
 
+    return url_busqueda, busqueda
+
+
+def limitar_busqueda():
     # Igual que antes
     limitar_boolean = 'a'
 
@@ -70,8 +75,7 @@ def preguntar_busqueda():
         num_productos_limitar = 100
 
     print("###########################")
-
-    return url_busqueda, num_productos_limitar
+    return num_productos_limitar
 
 
 def aceptar_cookies():
@@ -88,9 +92,7 @@ def aceptar_cookies():
         print("Tardando demasiado tiempo\n")
 
     except ElementNotInteractableException:
-        print("Error interno, cerrando...")
-        driver.close()
-        sys.exit(1)
+        print("No interactuable...")
 
 
 def click_mas_productos():
@@ -176,8 +178,8 @@ def imprimir_elementos(producto):
     print("###########################")
 
     enviar_mensajes_a_telegram(producto["url"])
-    escribir_a_csv(producto)
-    #guardar_elemento_bbdd(producto)
+    escribir_a_csv(producto, busqueda)
+    guardar_elemento_bbdd(producto)
 
 
 def configurar_bbdd():
@@ -192,10 +194,17 @@ def configurar_bbdd():
 
 def guardar_elemento_bbdd(produc):
 
-    try:
-        cursor.execute()
+    query = "INSERT IGNORE INTO productos VALUES ( '" + produc["titulo"] + "', '" + produc["precio"] + "', " \
+            + produc["barrio"] + ", '" + produc["ciudad"] + "', '" + produc["fechaPublicacion"] + "', " + \
+            produc["puntuacion"] + ", '" + produc["imagenURL"] + "', '" + produc["url"] + "')"
 
-        db.commit()
+    try:
+        # Suprimer los warnings de mysql (util para cuando inserta filas duplicadas y no deja)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            cursor.execute(query)
+
+            db.commit()
     except:
         db.rollback()
 
@@ -212,13 +221,13 @@ def enviar_mensajes_a_telegram(url):
     telebot.send_message(chat_id, url)
 
 
-def cabecera_csv():
-    with open('resultado.csv', 'w') as f:
+def cabecera_csv(titulo_busqueda):
+    with open(titulo_busqueda + '.csv', 'w') as f:
         f.write("Titulo, Precio, Barrio, Ciudad, Fecha publicacion, Puntuacion vendedor, Imagen, URL \n")
 
 
-def escribir_a_csv(producto):
-    with open('resultado.csv', 'a') as f:
+def escribir_a_csv(producto, titulo_busqueda):
+    with open(titulo_busqueda + '.csv', 'a') as f:
         f.write(producto["titulo"] + "," + producto["precio"] + "," + producto["barrio"] + ","
                 + producto["ciudad"] + "," + producto["fechaPublicacion"] + ", " + producto["puntuacion"]
                 + "," + producto["imagenURL"] + "," + producto["url"] + "\n")
@@ -226,14 +235,15 @@ def escribir_a_csv(producto):
 
 array_urls = []
 
-#Iniciar telegram, base de datos y cabecera csv
+#Iniciar telegram, base de datos
 telebot, chat_id = configurar_telegram()
 cursor, db = configurar_bbdd()
-cabecera_csv()
 
 imprimir_intro()
-buscar, productos_limitar = preguntar_busqueda()
+buscar, busqueda = preguntar_busqueda()
+productos_limitar = limitar_busqueda()
 
+cabecera_csv(busqueda)
 segundos_dormidos = 60
 while True:
     # Abre un navegador de Firefox y navega por la pagina web
