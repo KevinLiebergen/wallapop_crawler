@@ -67,7 +67,6 @@ Configuro una contraseña para acceder a la base de datos, creo la base de datos
 ```mysql
 mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
 mysql> CREATE DATABASE crawler;
-mysql> CREATE TABLE productos (Titulo VARCHAR(30), Precio INT, Descripcion VARCHAR(400), Barrio INT, Ciudad VARCHAR(50), Fecha_publicacion VARCHAR(50), Puntuacion_vendedor VARCHAR(4), Imagen VARCHAR(300), url VARCHAR(300) );
 mysql> exit
 ```
 
