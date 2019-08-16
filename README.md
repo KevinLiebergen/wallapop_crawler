@@ -31,7 +31,17 @@ $ source venv/bin/activate
 ```
 
 # Ejecución
-`(venv) $ python3 crawler_walla.py`
+
+Únicamente ejecutar el script, por defecto viene configurado, antes de ejecutarlo leer detenidamente la sección de __configuración Telegram__ y __conexión base de datos__ para saber si comentar o no esa parte del código. 
+<br>`(venv) $ python3 crawler_walla.py`
+
+Para ejecutar desde Docker:
+
+- Para configurar el envío de mensajes a Telegram lee detenidamente la sección __configuración Telegram__, si no deseas el envío de mensajes comenta las llamadas a los métodos `configurarTelegram()` y `enviar_mensajes_a_telegram()` en las líneas 260 y 180 respectivamente.
+
+```bash
+
+```
 
 # Configuración Telegram
 
@@ -45,7 +55,7 @@ Este script implementa la opción de enviar los anuncios a un grupo privado de T
 <br>[Video resumen como crear tu bot y conocer tu token y chat id](https://www.youtube.com/watch?v=UhZtrhV7t3U)
 
 <br>Para deshabilitar esta opción únicamente es necesario comentar las llamadas a los métodos `configurar_telegram()
-` y `enviar_mensajes_a_telegram(producto["url"])` __cerca__ de las líneas 203 y 178 respectivamente.
+` y `enviar_mensajes_a_telegram(producto["url"])` __cerca__ de las líneas 260 y 180 respectivamente.
 
 # Conexión base de datos
 
@@ -61,7 +71,7 @@ $ sudo mysql_secure_installation
 
 ### Configuración base de datos
 
-Configuro una contraseña para acceder a la base de datos, creo la base de datos `crawler` con la tabla `productos` con sus respectivos campos.
+Configuro una contraseña para acceder a la base de datos, creo la base de datos `crawler`.
 
 `$ sudo mysql`
 ```mysql
@@ -69,6 +79,8 @@ mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'r
 mysql> CREATE DATABASE crawler;
 mysql> exit
 ```
+
+Una vez esté instalado al ejecutar el script se creará la respectiva tabla de la base de datos y se guardarán las consultas en dicha base de datos. Si se quiere omitir comentar las llamadas a los métodos `guardar_elemento_bbdd(producto)` y `cursor, db = configurar_bbdd()` en las líneas 182 y 261 respectivamente.
 
 
 # Salida entorno virtual
