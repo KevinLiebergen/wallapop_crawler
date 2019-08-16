@@ -81,7 +81,7 @@ def limitar_busqueda():
 def aceptar_cookies():
     # wait explicito que espera a que salga el popup de las cookies para aceptarlo
     try:
-        wait = WebDriverWait(driver, 15)
+        wait = WebDriverWait(driver, 20)
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".qc-cmp-button")))
         time.sleep(2)
 
@@ -189,17 +189,33 @@ def configurar_bbdd():
     )
     cursor = db.cursor()
 
+    # Creamos tabla nueva, nombre sin espacios
+    crear_tabla = "CREATE TABLE " + busqueda.replace(" ", "") + " (Titulo VARCHAR(50), Precio VARCHAR(30), " \
+                   "Barrio INT, Ciudad VARCHAR(50), Fecha_publicacion VARCHAR(50), Puntuacion_vendedor float, " \
+                   "Imagen VARCHAR(300), url VARCHAR(300), PRIMARY KEY (url))"
+
+    try:
+        # Suprime los warnings de mysql (util para cuando inserta filas duplicadas y no deja)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            cursor.execute(crear_tabla)
+
+            db.commit()
+    except:
+        db.rollback()
+
     return cursor, db
 
 
 def guardar_elemento_bbdd(produc):
 
-    query = "INSERT IGNORE INTO productos VALUES ( '" + produc["titulo"] + "', '" + produc["precio"] + "', " \
-            + produc["barrio"] + ", '" + produc["ciudad"] + "', '" + produc["fechaPublicacion"] + "', " + \
-            produc["puntuacion"] + ", '" + produc["imagenURL"] + "', '" + produc["url"] + "')"
+    query = "INSERT IGNORE INTO " + busqueda.replace(" ", "") + " VALUES ( '" + produc["titulo"] + "', '" + \
+            produc["precio"] + "', " + produc["barrio"] + ", '" + produc["ciudad"] + "', '" + \
+            produc["fechaPublicacion"] + "', " + produc["puntuacion"] + ", '" + produc["imagenURL"] + "', '" + \
+            produc["url"] + "')"
 
     try:
-        # Suprimer los warnings de mysql (util para cuando inserta filas duplicadas y no deja)
+        # Suprime los warnings de mysql (util para cuando inserta filas duplicadas y no deja)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             cursor.execute(query)
@@ -235,16 +251,19 @@ def escribir_a_csv(producto, titulo_busqueda):
 
 array_urls = []
 
-#Iniciar telegram, base de datos
-telebot, chat_id = configurar_telegram()
-cursor, db = configurar_bbdd()
-
+# Pregunta que buscar y demas filtros
 imprimir_intro()
 buscar, busqueda = preguntar_busqueda()
 productos_limitar = limitar_busqueda()
 
+# Iniciar telegram, base de datos
+telebot, chat_id = configurar_telegram()
+cursor, db = configurar_bbdd()
 cabecera_csv(busqueda)
+
+# Tiempo entre busquedas en segundos
 segundos_dormidos = 60
+
 while True:
     # Abre un navegador de Firefox y navega por la pagina web
     driver = webdriver.Firefox()
