@@ -4,6 +4,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from bs4 import BeautifulSoup
 import sys
 import time
@@ -262,11 +263,12 @@ cursor, db = configurar_bbdd()
 cabecera_csv(busqueda)
 
 # Tiempo entre busquedas en segundos
-segundos_dormidos = 60
+segundos_dormidos = 3600  # 3600 seg = 1 hora
 
 while True:
     # Abre un navegador de Firefox y navega por la pagina web
     driver = webdriver.Firefox()
+
     driver.get(buscar)
 
     aceptar_cookies()

@@ -33,7 +33,7 @@ $ source venv/bin/activate
 # Ejecución
 
 Únicamente ejecutar el script, por defecto viene configurado, antes de ejecutarlo leer detenidamente la sección de __configuración Telegram__ y __conexión base de datos__ para saber si comentar o no esa parte del código. 
-<br>`(venv) $ python3 crawler_walla.py`
+<br>`(venv) $ python3 walla_crawler.py`
 
 Para ejecutar desde Docker:
 
@@ -80,8 +80,11 @@ mysql> CREATE DATABASE crawler;
 mysql> exit
 ```
 
-Una vez esté instalado al ejecutar el script se creará la respectiva tabla de la base de datos y se guardarán las consultas en dicha base de datos. Si se quiere omitir comentar las llamadas a los métodos `guardar_elemento_bbdd(producto)` y `cursor, db = configurar_bbdd()` en las líneas 182 y 261 respectivamente.
+Una vez esté instalado, al ejecutar el script se creará la respectiva tabla de la base de datos y se guardarán las consultas en dicha base de datos. Si se quiere omitir comentar las llamadas a los métodos `guardar_elemento_bbdd(producto)` y `cursor, db = configurar_bbdd()` en las líneas 182 y 261 respectivamente.
 
+Si se desea acceder a la base de datos se accederá con:
+<br>`$ mysql -u root -p`
+<br>La contraseña solicitada será __root__
 
 # Salida entorno virtual
 
