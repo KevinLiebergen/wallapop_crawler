@@ -4,7 +4,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import ElementNotInteractableException
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.firefox.options import Options
 from bs4 import BeautifulSoup
 import sys
 import time
@@ -239,12 +239,12 @@ def enviar_mensajes_a_telegram(url):
 
 
 def cabecera_csv(titulo_busqueda):
-    with open(titulo_busqueda + '.csv', 'w') as f:
+    with open('csvs/' + titulo_busqueda + '.csv', 'w') as f:
         f.write("Titulo, Precio, Barrio, Ciudad, Fecha publicacion, Puntuacion vendedor, Imagen, URL \n")
 
 
 def escribir_a_csv(producto, titulo_busqueda):
-    with open(titulo_busqueda + '.csv', 'a') as f:
+    with open('csvs/' + titulo_busqueda + '.csv', 'a') as f:
         f.write(producto["titulo"] + "," + producto["precio"] + "," + producto["barrio"] + ","
                 + producto["ciudad"] + "," + producto["fechaPublicacion"] + ", " + producto["puntuacion"]
                 + "," + producto["imagenURL"] + "," + producto["url"] + "\n")
@@ -267,7 +267,11 @@ segundos_dormidos = 3600  # 3600 seg = 1 hora
 
 while True:
     # Abre un navegador de Firefox y navega por la pagina web
-    driver = webdriver.Firefox()
+
+    options = Options()
+    # Modo headless
+    options.headless = True
+    driver = webdriver.Firefox(options=options)
 
     driver.get(buscar)
 
