@@ -38,9 +38,11 @@ $ source venv/bin/activate
 Para ejecutar desde Docker:
 
 - Para configurar el envío de mensajes a Telegram lee detenidamente la sección __configuración Telegram__, si no deseas el envío de mensajes comenta las llamadas a los métodos `configurarTelegram()` y `enviar_mensajes_a_telegram()` en las líneas 260 y 180 respectivamente.
-
+- Activa la opción `options.headless = True` en la línea 274 
+- Construye y ejecuta la siguiente imagen en modo interactivo:
 ```bash
-
+$ docker build . -t walla_crawler
+$ docker run -it walla_crawler
 ```
 
 # Configuración Telegram
