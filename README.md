@@ -35,7 +35,7 @@ $ source venv/bin/activate
 Únicamente ejecutar el script, por defecto viene configurado, antes de ejecutarlo leer detenidamente la sección de __configuración Telegram__ y __conexión base de datos__ para saber si comentar o no esa parte del código. 
 <br>`(venv) $ python3 walla_crawler.py`
 
-Para ejecutar desde Docker:
+Para ejecutar desde Docker (En desarrollo, hay fallos):
 
 - Para configurar el envío de mensajes a Telegram lee detenidamente la sección __configuración Telegram__, si no deseas el envío de mensajes comenta las llamadas a los métodos `configurarTelegram()` y `enviar_mensajes_a_telegram()` en las líneas 260 y 180 respectivamente.
 - Activa la opción `options.headless = True` en la línea 274 
@@ -43,6 +43,13 @@ Para ejecutar desde Docker:
 ```bash
 $ docker build . -t walla_crawler
 $ docker run -it walla_crawler
+```
+
+Para docker-compose (Falta mucho aun no funciona)
+```bash
+$ docker-compose build
+$ docker-compose up db
+$ docker-compose run crawler
 ```
 
 # Configuración Telegram
