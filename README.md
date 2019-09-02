@@ -7,10 +7,12 @@ Crawler creado mediante la librería Selenium de python. Se han implementado fun
 - Los productos se guarden a una base de datos con sus respectivos campos.
 
 # Instalacion
-`$ git clone https://github.com/KevinLiebergen/wallapop_crawler.git`
-<br>`$ cd wallapop_crawler`
-<br>`$ pip3 install virtualenv`
-<br>`$ virtualenv venv`
+```
+$ git clone https://github.com/KevinLiebergen/wallapop_crawler.git
+$ cd wallapop_crawler
+$ pip3 install virtualenv
+$ virtualenv venv
+```
 
 Instalación Firefox driver, 2 opciones:
 
@@ -37,7 +39,7 @@ $ source venv/bin/activate
 
 Para ejecutar desde Docker (En desarrollo, hay fallos):
 
-- Para configurar el envío de mensajes a Telegram lee detenidamente la sección __configuración Telegram__, si no deseas el envío de mensajes comenta las llamadas a los métodos `configurarTelegram()` y `enviar_mensajes_a_telegram()` en las líneas 260 y 180 respectivamente.
+- Para configurar el envío de mensajes a Telegram lee detenidamente la sección __configuración Telegram__, si no deseas el envío de mensajes comenta las llamadas a los métodos `configurarTelegram()` y `enviar_mensajes_a_telegram()`.
 - Activa la opción `options.headless = True` en la línea 274 
 - Construye y ejecuta la siguiente imagen en modo interactivo:
 ```bash
@@ -46,11 +48,17 @@ $ docker run -it walla_crawler
 ```
 
 Para docker-compose (Falta mucho aun no funciona)
+
+__TAREA HACER CUANDO VUELVA VIAJE__
+leer https://robertoorayen.eu/2017/05/14/como-crear-un-sitio-web-con-docker/ para entender el puenteo entre puertos
+no va bien por los puertos, entender como crawler a la imagen mysql y este a maquina local
+
 ```bash
 $ docker-compose build
 $ docker-compose up db
 $ docker-compose run crawler
 ```
+__No se puede hacer `$ docker-compose up` porque up no es interactivo, por eso hacemos run crawler__
 
 # Configuración Telegram
 
@@ -58,8 +66,8 @@ Este script implementa la opción de enviar los anuncios a un grupo privado de T
 - Crear tu propio bot
     - Comienza una conversación con `@BotFather` y escribe `/newbot`. Especifica el nombre y el nickname
 - Crear un grupo y añadir el bot creado
-- Conocer el __token__ del bot creado (Botfather al crear tu bot te lo escribe por pantalla) y __dale valor a la variable token con el token de tu bot__ en el método `configurar_telegram()`
-- Conocer el __chat id__ del grupo creado y darle valor a la variable __ch_id__ del método `configurar_telegram()`
+- Conocer el __token__ del bot creado (Botfather al crear tu bot te lo escribe por pantalla) y __dale valor a la variable token con el token de tu bot__ en el fichero api_telegram.json.
+- Conocer el __chat id__ del grupo creado y darle valor a la variable __ch_id__ en el fichero api_telegram.json.
 
 <br>[Video resumen como crear tu bot y conocer tu token y chat id](https://www.youtube.com/watch?v=UhZtrhV7t3U)
 
