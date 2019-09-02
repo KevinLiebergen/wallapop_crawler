@@ -11,6 +11,7 @@ import time
 import re
 import telebot
 import warnings
+import json
 import pymysql
 
 
@@ -227,9 +228,13 @@ def guardar_elemento_bbdd(produc):
 
 
 def configurar_telegram():
-    token = ''
-    ch_id = ''
-    tb = telebot.TeleBot(token)
+    with open('api_telegram.json') as json_file:
+        data = json.load(json_file)
+
+        token = data['token']
+        ch_id = data['ch_id']
+
+        tb = telebot.TeleBot(token)
 
     return tb, ch_id
 
@@ -260,6 +265,7 @@ productos_limitar = limitar_busqueda()
 # Iniciar telegram, base de datos
 telebot, chat_id = configurar_telegram()
 cursor, db = configurar_bbdd()
+
 cabecera_csv(busqueda)
 
 # Tiempo entre busquedas en segundos
@@ -270,7 +276,7 @@ while True:
 
     options = Options()
     # Modo headless
-    options.headless = True
+    options.headless = False
     driver = webdriver.Firefox(options=options)
 
     driver.get(buscar)
