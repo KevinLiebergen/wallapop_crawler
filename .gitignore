@@ -6,3 +6,6 @@ venv/
 geckodriver.log
 
 *.csv
+
+# telegram api bot
+api_telegram.json

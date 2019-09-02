@@ -4,12 +4,14 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.firefox.options import Options
 from bs4 import BeautifulSoup
 import sys
 import time
 import re
 import telebot
 import warnings
+import json
 import pymysql
 
 
@@ -226,9 +228,13 @@ def guardar_elemento_bbdd(produc):
 
 
 def configurar_telegram():
-    token = ''
-    ch_id = ''
-    tb = telebot.TeleBot(token)
+    with open('api_telegram.json') as json_file:
+        data = json.load(json_file)
+
+        token = data['token']
+        ch_id = data['ch_id']
+
+        tb = telebot.TeleBot(token)
 
     return tb, ch_id
 
@@ -238,12 +244,12 @@ def enviar_mensajes_a_telegram(url):
 
 
 def cabecera_csv(titulo_busqueda):
-    with open(titulo_busqueda + '.csv', 'w') as f:
+    with open('csvs/' + titulo_busqueda + '.csv', 'w') as f:
         f.write("Titulo, Precio, Barrio, Ciudad, Fecha publicacion, Puntuacion vendedor, Imagen, URL \n")
 
 
 def escribir_a_csv(producto, titulo_busqueda):
-    with open(titulo_busqueda + '.csv', 'a') as f:
+    with open('csvs/' + titulo_busqueda + '.csv', 'a') as f:
         f.write(producto["titulo"] + "," + producto["precio"] + "," + producto["barrio"] + ","
                 + producto["ciudad"] + "," + producto["fechaPublicacion"] + ", " + producto["puntuacion"]
                 + "," + producto["imagenURL"] + "," + producto["url"] + "\n")
@@ -259,14 +265,20 @@ productos_limitar = limitar_busqueda()
 # Iniciar telegram, base de datos
 telebot, chat_id = configurar_telegram()
 cursor, db = configurar_bbdd()
+
 cabecera_csv(busqueda)
 
 # Tiempo entre busquedas en segundos
-segundos_dormidos = 60
+segundos_dormidos = 3600  # 3600 seg = 1 hora
 
 while True:
     # Abre un navegador de Firefox y navega por la pagina web
-    driver = webdriver.Firefox()
+
+    options = Options()
+    # Modo headless
+    options.headless = False
+    driver = webdriver.Firefox(options=options)
+
     driver.get(buscar)
 
     aceptar_cookies()
