@@ -1,170 +1,190 @@
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
-from selenium.common.exceptions import ElementNotInteractableException
 from selenium.webdriver.firefox.options import Options
-from bs4 import BeautifulSoup
-import sys
 import time
-import re
 import telebot
 import warnings
 import json
 import pymysql
+import os
+import crawler
+
+class Vista:
+    def __init__(self):
+        # Diseño por http://patorjk.com/software/taag/
+        print('''                                                                          
+         (  (          (  (                                           (           
+         )\))(   '   ) )\ )\   )                      (      ) (  (   )\  (  (    
+        ((_)()\ ) ( /(((_|(_| /( `  )   (  `  )     ( )(  ( /( )\))( ((_)))\ )(   
+        _(())\_)())(_))_  _ )(_))/(/(   )\ /(/(     )(()\ )(_)|(_)()\ _ /((_|()\  
+        \ \((_)/ ((_)_| || ((_)_((_)_\ ((_|(_)_\   ((_|(_|(_)__(()((_) (_))  ((_) 
+         \ \/\/ // _` | || / _` | '_ \) _ \ '_ \) / _| '_/ _` \ V  V / / -_)| '_| 
+          \_/\_/ \__,_|_||_\__,_| .__/\___/ .__/  \__|_| \__,_|\_/\_/|_\___||_|   
+                                |_|       |_|                                     
+              ''')
+
+    def preguntar_busqueda(self):
+        print("Especifique que buscar: ", end='')
+        self.busqueda = input()
+
+        # por defecto a para que se meta en el while y pregunta hasta conseguir s o n
+        precio_boolean = 'a'
+
+        while not (precio_boolean == 's' or precio_boolean == 'n'):
+            print("¿Quieres filtrar los productos por precio? [s/n]: ", end='')
+            precio_boolean = input()
+
+        if precio_boolean == 's':
+            print("Precio minimo: ", end='')
+            self.precio_minimo = input()
+            print("Precio maximo: ", end='')
+            self.precio_maximo = input()
+            self.url_busqueda = crawler.Crawler.gen_url(self.busqueda, self.precio_minimo, self.precio_maximo)
+
+        else:
+            self.url_busqueda = "https://es.wallapop.com/search?keywords=" + self.busqueda
+            # +"&latitude=40.4146500&longitude=-3.7004000"
+
+        return self.url_busqueda, self.busqueda
 
 
-def imprimir_intro():
-    # Diseño por http://patorjk.com/software/taag/
-    print('''                                                                          
-     (  (          (  (                                           (           
-     )\))(   '   ) )\ )\   )                      (      ) (  (   )\  (  (    
-    ((_)()\ ) ( /(((_|(_| /( `  )   (  `  )     ( )(  ( /( )\))( ((_)))\ )(   
-    _(())\_)())(_))_  _ )(_))/(/(   )\ /(/(     )(()\ )(_)|(_)()\ _ /((_|()\  
-    \ \((_)/ ((_)_| || ((_)_((_)_\ ((_|(_)_\   ((_|(_|(_)__(()((_) (_))  ((_) 
-     \ \/\/ // _` | || / _` | '_ \) _ \ '_ \) / _| '_/ _` \ V  V / / -_)| '_| 
-      \_/\_/ \__,_|_||_\__,_| .__/\___/ .__/  \__|_| \__,_|\_/\_/|_\___||_|   
-                            |_|       |_|                                     
-          ''')
+    def limitar_busqueda(self):
+        # Igual que antes
+        limitar_boolean = 'a'
+
+        while not (limitar_boolean == 's' or limitar_boolean == 'n'):
+            print("¿Limitar el número de productos? [s/n]: ", end='')
+            limitar_boolean = input()
+
+        if limitar_boolean == 's':
+            num_productos_limitar = 0
+            while not (num_productos_limitar > 0):
+                print("Numero de productos a limitar [> 0]: ", end='')
+                try:
+                    num_productos_limitar = int(input())
+                except ValueError:
+                    num_productos_limitar = 0
+
+        else:
+            num_productos_limitar = 100
+
+        print("###########################")
+        return num_productos_limitar
 
 
-def preguntar_busqueda():
-    print("Especifique que buscar: ", end='')
-    busqueda = input()
+class Telegram:
+    def __init__(self):
+        with open('api_telegram.json') as json_file:
+            data = json.load(json_file)
 
-    # por defecto a para que se meta en el while y pregunta hasta conseguir s o n
-    precio_boolean = 'a'
+            self.token = data['token']
+            self.ch_id = data['ch_id']
+            self.tb = telebot.TeleBot(self.token)
 
-    while not (precio_boolean == 's' or precio_boolean == 'n'):
-        print("¿Quieres filtrar los productos por precio? [s/n]: ", end='')
-        precio_boolean = input()
-
-    if precio_boolean == 's':
-        print("Precio minimo: ", end='')
-        precio_minimo = input()
-        print("Precio maximo: ", end='')
-        precio_maximo = input()
-
-        url_busqueda = "https://es.wallapop.com/search?keywords=" + busqueda + "&min_sale_price=" + precio_minimo + \
-                       "&max_sale_price=" + precio_maximo  # +"&latitude=40.4146500&longitude=-3.7004000"
-
-    else:
-        url_busqueda = "https://es.wallapop.com/search?keywords=" + busqueda
-        # +"&latitude=40.4146500&longitude=-3.7004000"
-
-    return url_busqueda, busqueda
+    def enviar_mensajes_a_telegram(self, url):
+        self.tb.send_message(self.ch_id, url)
 
 
-def limitar_busqueda():
-    # Igual que antes
-    limitar_boolean = 'a'
+class BaseDatos:
+    def __init__(self):
+        db_addr = os.environ.get('DB_ADDR', 'localhost')
 
-    while not (limitar_boolean == 's' or limitar_boolean == 'n'):
-        print("¿Limitar el número de productos? [s/n]: ", end='')
-        limitar_boolean = input()
+        self.db = pymysql.connect(
+            host=db_addr, port=3306, user="root",
+            passwd="root", db="crawler"
+        )
+        self.cursor = self.db.cursor()
 
-    if limitar_boolean == 's':
-        num_productos_limitar = 0
-        while not (num_productos_limitar > 0):
-            print("Numero de productos a limitar [> 0]: ", end='')
-            try:
-                num_productos_limitar = int(input())
-            except ValueError:
-                num_productos_limitar = 0
+    def crear_nueva_tabla(self):
+        # Creamos tabla nueva, nombre sin espacios
+        crear_tabla = "CREATE TABLE productos (Titulo VARCHAR(50), Precio VARCHAR(30), " \
+                        "Barrio INT, Ciudad VARCHAR(50), Fecha_publicacion VARCHAR(50), Puntuacion_vendedor float, " \
+                        "Imagen VARCHAR(300), url VARCHAR(300), PRIMARY KEY (url))"
 
-    else:
-        num_productos_limitar = 100
+        try:
+            # Suprime los warnings de mysql (util para cuando inserta filas duplicadas y no deja)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                self.cursor.execute(crear_tabla)
 
-    print("###########################")
-    return num_productos_limitar
+                self.db.commit()
+        except:
+            self.db.rollback()
 
+    def guardar_elemento_bbdd(self, produc):
 
-def aceptar_cookies():
-    # wait explicito que espera a que salga el popup de las cookies para aceptarlo
-    try:
-        wait = WebDriverWait(driver, 20)
-        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".qc-cmp-button")))
-        time.sleep(2)
+        query = "INSERT IGNORE INTO productos VALUES ( '" + produc["titulo"] + "', '" + \
+                produc["precio"] + "', " + produc["barrio"] + ", '" + produc["ciudad"] + "', '" + \
+                produc["fechaPublicacion"] + "', " + produc["puntuacion"] + ", '" + produc["imagenURL"] + "', '" + \
+                produc["url"] + "')"
 
-        # Hace click en el boton aceptar cookies
-        driver.find_elements_by_css_selector('.qc-cmp-button')[1].click()
+        try:
+            # Suprime los warnings de mysql (util para cuando inserta filas duplicadas y no deja)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                self.cursor.execute(query)
 
-    except TimeoutException:
-        print("Tardando demasiado tiempo\n")
-
-    except ElementNotInteractableException:
-        print("No interactuable...")
-
-
-def click_mas_productos():
-    boton_mas_productos = driver.find_element_by_css_selector('.Button')
-    driver.execute_script("arguments[0].click();", boton_mas_productos)
+                self.db.commit()
+        except:
+            self.db.rollback()
 
 
-def scroll_hasta_final():
-    scroll_pause_time = 1
+class CSV:
+    def __init__(self, titulo_busqueda):
+        self.titulo_busqueda = titulo_busqueda
+        with open('csvs/' + self.titulo_busqueda + '.csv', 'w') as f:
+            f.write("Titulo, Precio, Barrio, Ciudad, Fecha publicacion, Puntuacion vendedor, Imagen, URL \n")
 
-    try:
-        # Get scroll height
-        last_height = driver.execute_script("return document.body.scrollHeight")
-
-    except ElementNotInteractableException:
-        print("No se puede hacer scroll down\n")
-        driver.close()
-        sys.exit(1)
-
-    while True:
-        # Scroll down to bottom
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-        # Wait to load page
-        time.sleep(scroll_pause_time)
-
-        # Calculate new scroll height and compare with last scroll height
-        new_height = driver.execute_script("return document.body.scrollHeight")
-        if new_height == last_height:
-            break
-        last_height = new_height
+    def escribir_a_csv(producto, titulo_busqueda):
+        with open('csvs/' + titulo_busqueda + '.csv', 'a') as f:
+            f.write(producto["titulo"] + "," + producto["precio"] + "," + producto["barrio"] + ","
+                    + producto["ciudad"] + "," + producto["fechaPublicacion"] + ", " + producto["puntuacion"]
+                    + "," + producto["imagenURL"] + "," + producto["url"] + "\n")
 
 
-def clickear_cada_producto(urls):
-    producto = 0
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
+class WebDriver:
+    def __init__(self):
+        # Abre un navegador de Firefox y navega por la pagina web
+        self.options = Options()
+        # Modo headless
+        self.options.headless = False
 
-    for link in soup.find_all('a', href=re.compile('/item')):
+    def iniciar_firefox(self, url):
+        self.driver = webdriver.Firefox(options=self.options)
+        self.driver.get(url)
 
-        if "https://es.wallapop.com" + link['href'] not in urls:
-            driver.get("https://es.wallapop.com" + link['href'])
-
-            extraer_elementos()
-            producto += 1
-            urls += ["https://es.wallapop.com" + link['href']]
-            if producto == productos_limitar:
-                break
-
-    return producto, urls
+        return self.driver
 
 
-def extraer_elementos():
-    localizacion = driver.find_element_by_css_selector('.card-product-detail-location').text.split(',')
+class Producto:
+    def __init__(self):
+        localizacion = driver.find_element_by_css_selector('.card-product-detail-location').text.split(',')
 
-    diccionario_producto = {
-        "titulo": driver.find_elements_by_css_selector('.card-product-detail-title')[0].text,
-        "precio": driver.find_elements_by_css_selector('.card-product-detail-price')[0].text,
-        "descripcion": driver.find_elements_by_css_selector('.card-product-detail-description')[0].text,
+        self.titulo = driver.find_elements_by_css_selector('.card-product-detail-title')[0].text
+        self.precio = driver.find_elements_by_css_selector('.card-product-detail-price')[0].text
+        self.descripcion = driver.find_elements_by_css_selector('.card-product-detail-description')[0].text
         # Para la localizacion se encuentra ciudad y barrio en una misma etiqueta, se separa por una coma, el
         # primer texto es el barrio y el segundo la ciudad (he puesto ultimo xq 1 daba error)
-        "barrio": localizacion[0],
-        "ciudad": localizacion[len(localizacion) - 1].lstrip(),
-        "fechaPublicacion": driver.find_element_by_css_selector('.card-product-detail-user-stats-published').text,
-        "puntuacion": driver.find_element_by_css_selector('.card-profile-rating').get_attribute("data-score"),
-        "imagenURL": driver.find_element_by_css_selector(
+        self.barrio = localizacion[0]
+        self.ciudad = localizacion[len(localizacion) - 1].lstrip()
+        self.fechaPublicacion = driver.find_element_by_css_selector('.card-product-detail-user-stats-published').text
+        self.puntuacion = driver.find_element_by_css_selector('.card-profile-rating').get_attribute("data-score")
+        self.imagenURL = driver.find_element_by_css_selector(
             '#js-card-slider-main > li:nth-child(1) > img:nth-child(1)').get_attribute("src"),
-        "url": driver.current_url
-    }
+        self.url = driver.current_url
 
-    imprimir_elementos(diccionario_producto)
+        imprimir_elementos(self)
+
+        csv_class.escribir_a_csv(self, vista.busqueda)
+
+        # TODO Método dentro del crawler
+        #guardar_elemento_bbdd(self)
+
+
+def gen_url(busqueda, precio_minimo, precio_maximo):
+    # return "asbc%d" % (precio_maximo)
+    # return "abasdfas{PM}".format(PM=precio_maximo)
+    return "https://es.wallapop.com/search?keywords=" + busqueda + "&min_sale_price=" + str(precio_minimo) + \
+                          "&max_sale_price=" + str(precio_maximo)  # +"&latitude=40.4146500&longitude=-3.7004000
 
 
 def imprimir_elementos(producto):
@@ -179,119 +199,84 @@ def imprimir_elementos(producto):
     print("URL: " + producto["url"])
     print("###########################")
 
-    enviar_mensajes_a_telegram(producto["url"])
-    escribir_a_csv(producto, busqueda)
-    guardar_elemento_bbdd(producto)
+
+def run(url_busc, busqueda, num_max_productos):
+    global driver # Esto como parametro de clase
+
+    # Iniciar telegram
+    t = Telegram()
+    global csv_class
+    csv_class = CSV(busqueda)
+
+    # Inicia base de datos
+    bbdd = BaseDatos()
+    bbdd.crear_nueva_tabla()
+    array_urls = [] # Esto como parametro de clase
+
+    # Tiempo entre busquedas en segundos
+    segundos_dormidos = 3600  # 3600 seg = 1 hora
+
+    wd = WebDriver()
+
+    while True:
+
+        wdriver = wd.iniciar_firefox(url_busc)
+
+        cr = crawler.Crawler(wdriver)
+
+        cr.aceptar_cookies()
+        cr.click_mas_productos()
+        cr.scroll_hasta_final()
+        contador, array_urls = cr.clickear_cada_producto(array_urls, num_max_productos, t)
+
+        print(str(contador) + " nuevos productos encontrados")
+
+        # Cierra el navegador
+        driver.close()
+
+        print("Esperando " + str(segundos_dormidos) + " segundos para volver a buscar")
+        print("###########################")
+
+        time.sleep(segundos_dormidos)
+
+# def run(producto, n_productos):
+#     pass
+#
+# def main():
+#     producto = args.get('producto', 'default')
+#     n_productos = args.get('n_productos', 5)
+#     ...
+#     run(producto, n_productos)
+#
+# def main_cli():
+#     producto = input("Qué product quieres?")
+#     ...
+#     run(producto, n_productos)
+# import argparse
+# if __name__ == '__main__':
+#     parser = argparse.ArgumentParser(description="")
+#
+#     print(p)
+#     if '--cli' in args:
+#         main_cli()
+#     else:
+#         main()
+
+driver = None
 
 
-def configurar_bbdd():
-    db = pymysql.connect(
-        host="localhost", port=3306, user="root",
-        passwd="root", db="crawler"
-    )
-    cursor = db.cursor()
+if __name__ == '__main__':
 
-    # Creamos tabla nueva, nombre sin espacios
-    crear_tabla = "CREATE TABLE " + busqueda.replace(" ", "") + " (Titulo VARCHAR(50), Precio VARCHAR(30), " \
-                   "Barrio INT, Ciudad VARCHAR(50), Fecha_publicacion VARCHAR(50), Puntuacion_vendedor float, " \
-                   "Imagen VARCHAR(300), url VARCHAR(300), PRIMARY KEY (url))"
+    # Instancia la clase, imprime wallapop crawler
+    vista = Vista()
 
-    try:
-        # Suprime los warnings de mysql (util para cuando inserta filas duplicadas y no deja)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            cursor.execute(crear_tabla)
+    # Pregunta que buscar y demas filtros
+    if os.environ.get('CLI', None):
+        url_buscar, producto_busqueda = vista.preguntar_busqueda()
+        productos_limitar = vista.limitar_busqueda()
+    else:
+        producto_busqueda = os.environ.get('BUSQUEDA', 'bici enduro')
+        url_buscar = gen_url(producto_busqueda, 2000, 2000)
+        productos_limitar = int(os.environ.get('PRODUCTOS_LIMITAR', 5))
 
-            db.commit()
-    except:
-        db.rollback()
-
-    return cursor, db
-
-
-def guardar_elemento_bbdd(produc):
-
-    query = "INSERT IGNORE INTO " + busqueda.replace(" ", "") + " VALUES ( '" + produc["titulo"] + "', '" + \
-            produc["precio"] + "', " + produc["barrio"] + ", '" + produc["ciudad"] + "', '" + \
-            produc["fechaPublicacion"] + "', " + produc["puntuacion"] + ", '" + produc["imagenURL"] + "', '" + \
-            produc["url"] + "')"
-
-    try:
-        # Suprime los warnings de mysql (util para cuando inserta filas duplicadas y no deja)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            cursor.execute(query)
-
-            db.commit()
-    except:
-        db.rollback()
-
-
-def configurar_telegram():
-    with open('api_telegram.json') as json_file:
-        data = json.load(json_file)
-
-        token = data['token']
-        ch_id = data['ch_id']
-
-        tb = telebot.TeleBot(token)
-
-    return tb, ch_id
-
-
-def enviar_mensajes_a_telegram(url):
-    telebot.send_message(chat_id, url)
-
-
-def cabecera_csv(titulo_busqueda):
-    with open('csvs/' + titulo_busqueda + '.csv', 'w') as f:
-        f.write("Titulo, Precio, Barrio, Ciudad, Fecha publicacion, Puntuacion vendedor, Imagen, URL \n")
-
-
-def escribir_a_csv(producto, titulo_busqueda):
-    with open('csvs/' + titulo_busqueda + '.csv', 'a') as f:
-        f.write(producto["titulo"] + "," + producto["precio"] + "," + producto["barrio"] + ","
-                + producto["ciudad"] + "," + producto["fechaPublicacion"] + ", " + producto["puntuacion"]
-                + "," + producto["imagenURL"] + "," + producto["url"] + "\n")
-
-
-array_urls = []
-
-# Pregunta que buscar y demas filtros
-imprimir_intro()
-buscar, busqueda = preguntar_busqueda()
-productos_limitar = limitar_busqueda()
-
-# Iniciar telegram, base de datos
-telebot, chat_id = configurar_telegram()
-cursor, db = configurar_bbdd()
-
-cabecera_csv(busqueda)
-
-# Tiempo entre busquedas en segundos
-segundos_dormidos = 3600  # 3600 seg = 1 hora
-
-while True:
-    # Abre un navegador de Firefox y navega por la pagina web
-
-    options = Options()
-    # Modo headless
-    options.headless = False
-    driver = webdriver.Firefox(options=options)
-
-    driver.get(buscar)
-
-    aceptar_cookies()
-    click_mas_productos()
-    scroll_hasta_final()
-    contador, array_urls = clickear_cada_producto(array_urls)
-
-    print(str(contador) + " nuevos productos encontrados")
-
-    # Cierra el navegador
-    driver.close()
-
-    print("Esperando " + str(segundos_dormidos) + " segundos para volver a buscar")
-    print("###########################")
-
-    time.sleep(segundos_dormidos)
+    run(url_buscar, producto_busqueda, productos_limitar)

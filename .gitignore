@@ -9,3 +9,5 @@ geckodriver.log
 
 # telegram api bot
 api_telegram.json
+
+*.pyc

@@ -11,10 +11,8 @@ services:
     # Para que se ejecute de modo interactivo
     stdin_open: true
     tty: true
-
-    expose:
-      - '3306'
-
+    environment:
+      DB_ADDR: db
   db:
     image: mysql:5.7.27
     restart: always
@@ -24,6 +22,6 @@ services:
       MYSQL_ROOT_PASSWORD: 'root'
     expose:
       - '3306'
-    ports:
-      # <Puerto expuesto> : < MySQL Puerto corriendo dentro del contenedor>
-      - '3306:3306'
+#    ports:
+#      # <Puerto expuesto> : < MySQL Puerto corriendo dentro del contenedor>
+#      - '3306:3306'
