@@ -8,6 +8,7 @@ import pymysql
 import os
 import crawler
 
+
 class Vista:
     def __init__(self):
         # Diseño por http://patorjk.com/software/taag/
@@ -38,14 +39,13 @@ class Vista:
             self.precio_minimo = input()
             print("Precio maximo: ", end='')
             self.precio_maximo = input()
-            self.url_busqueda = crawler.Crawler.gen_url(self.busqueda, self.precio_minimo, self.precio_maximo)
+            self.url_busqueda = gen_url(self.busqueda, self.precio_minimo, self.precio_maximo)
 
         else:
             self.url_busqueda = "https://es.wallapop.com/search?keywords=" + self.busqueda
             # +"&latitude=40.4146500&longitude=-3.7004000"
 
         return self.url_busqueda, self.busqueda
-
 
     def limitar_busqueda(self):
         # Igual que antes
@@ -172,8 +172,8 @@ class Producto:
             '#js-card-slider-main > li:nth-child(1) > img:nth-child(1)').get_attribute("src"),
         self.url = driver.current_url
 
+    def imprime_elementos(self):
         imprimir_elementos(self)
-
         csv_class.escribir_a_csv(self, vista.busqueda)
 
         # TODO Método dentro del crawler

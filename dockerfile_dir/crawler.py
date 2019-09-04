@@ -3,6 +3,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+import walla_crawler
 from bs4 import BeautifulSoup
 import re
 import time
@@ -68,8 +69,9 @@ class Crawler:
             if "https://es.wallapop.com" + link['href'] not in urls:
                 self.driver.get("https://es.wallapop.com" + link['href'])
 
-                from walla_crawler import Producto
-                Producto.__init__()
+                p = walla_crawler.Producto()
+
+                p.imprime_elementos()
 
                 telegram.enviar_mensajes_a_telegram(producto["url"])
 
