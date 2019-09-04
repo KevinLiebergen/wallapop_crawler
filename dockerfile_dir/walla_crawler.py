@@ -1,10 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 import time
-import telebot
-import warnings
-import json
-import pymysql
 import os
 import crawler
 
@@ -69,76 +65,6 @@ class Vista:
 
         print("###########################")
         return num_productos_limitar
-
-
-class Telegram:
-    def __init__(self):
-        with open('api_telegram.json') as json_file:
-            data = json.load(json_file)
-
-            self.token = data['token']
-            self.ch_id = data['ch_id']
-            self.tb = telebot.TeleBot(self.token)
-
-    def enviar_mensajes_a_telegram(self, url):
-        self.tb.send_message(self.ch_id, url)
-
-
-class BaseDatos:
-    def __init__(self):
-        db_addr = os.environ.get('DB_ADDR', 'localhost')
-
-        self.db = pymysql.connect(
-            host=db_addr, port=3306, user="root",
-            passwd="root", db="crawler"
-        )
-        self.cursor = self.db.cursor()
-
-    def crear_nueva_tabla(self):
-        # Creamos tabla nueva, nombre sin espacios
-        crear_tabla = "CREATE TABLE productos (Titulo VARCHAR(50), Precio VARCHAR(30), " \
-                        "Barrio INT, Ciudad VARCHAR(50), Fecha_publicacion VARCHAR(50), Puntuacion_vendedor float, " \
-                        "Imagen VARCHAR(300), url VARCHAR(300), PRIMARY KEY (url))"
-
-        try:
-            # Suprime los warnings de mysql (util para cuando inserta filas duplicadas y no deja)
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                self.cursor.execute(crear_tabla)
-
-                self.db.commit()
-        except:
-            self.db.rollback()
-
-    def guardar_elemento_bbdd(self, produc):
-
-        query = "INSERT IGNORE INTO productos VALUES ( '" + produc["titulo"] + "', '" + \
-                produc["precio"] + "', " + produc["barrio"] + ", '" + produc["ciudad"] + "', '" + \
-                produc["fechaPublicacion"] + "', " + produc["puntuacion"] + ", '" + produc["imagenURL"] + "', '" + \
-                produc["url"] + "')"
-
-        try:
-            # Suprime los warnings de mysql (util para cuando inserta filas duplicadas y no deja)
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                self.cursor.execute(query)
-
-                self.db.commit()
-        except:
-            self.db.rollback()
-
-
-class CSV:
-    def __init__(self, titulo_busqueda):
-        self.titulo_busqueda = titulo_busqueda
-        with open('csvs/' + self.titulo_busqueda + '.csv', 'w') as f:
-            f.write("Titulo, Precio, Barrio, Ciudad, Fecha publicacion, Puntuacion vendedor, Imagen, URL \n")
-
-    def escribir_a_csv(producto, titulo_busqueda):
-        with open('csvs/' + titulo_busqueda + '.csv', 'a') as f:
-            f.write(producto["titulo"] + "," + producto["precio"] + "," + producto["barrio"] + ","
-                    + producto["ciudad"] + "," + producto["fechaPublicacion"] + ", " + producto["puntuacion"]
-                    + "," + producto["imagenURL"] + "," + producto["url"] + "\n")
 
 
 class WebDriver:
