@@ -2,21 +2,9 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 import time
 import os
-import crawler
+from outputs import telegram
+from outputs import csv
 
-
-class WebDriver:
-    def __init__(self):
-        # Abre un navegador de Firefox y navega por la pagina web
-        self.options = Options()
-        # Modo headless
-        self.options.headless = False
-
-    def iniciar_firefox(self, url):
-        self.driver = webdriver.Firefox(options=self.options)
-        self.driver.get(url)
-
-        return self.driver
 
 
 class Producto:
@@ -38,7 +26,7 @@ class Producto:
 
     def imprime_elementos(self):
         imprimir_elementos(self)
-        csv_class.escribir_a_csv(self, vista.busqueda)
+        csv_class.escribir_a_csv(self, busqueda)
 
         # TODO Método dentro del crawler
         #guardar_elemento_bbdd(self)
@@ -58,66 +46,6 @@ def saludar():
           ''')
 
 
-def preguntar_busqueda(self):
-    print("Especifique que buscar: ", end='')
-    self.busqueda = input()
-
-    # por defecto a para que se meta en el while y pregunta hasta conseguir s o n
-    precio_boolean = 'a'
-
-    while not (precio_boolean == 's' or precio_boolean == 'n'):
-        print("¿Quieres filtrar los productos por precio? [s/n]: ", end='')
-        precio_boolean = input()
-
-    if precio_boolean == 's':
-        print("Precio minimo: ", end='')
-        self.precio_minimo = input()
-        print("Precio maximo: ", end='')
-        self.precio_maximo = input()
-
-    self.url_busqueda = gen_url(self.busqueda, self.precio_minimo, self.precio_maximo)
-
-    # else:
-    #     self.url_busqueda = "https://es.wallapop.com/search?keywords=" + self.busqueda
-    #     # +"&latitude=40.4146500&longitude=-3.7004000"
-
-    return self.url_busqueda, self.busqueda
-
-
-def limitar_busqueda(self):
-    # Igual que antes
-    limitar_boolean = 'a'
-
-    while not (limitar_boolean == 's' or limitar_boolean == 'n'):
-        print("¿Limitar el número de productos? [s/n]: ", end='')
-        limitar_boolean = input()
-
-    if limitar_boolean == 's':
-        num_productos_limitar = 0
-        while not (num_productos_limitar > 0):
-            print("Numero de productos a limitar [> 0]: ", end='')
-            try:
-                num_productos_limitar = int(input())
-            except ValueError:
-                num_productos_limitar = 0
-
-    else:
-        num_productos_limitar = 100
-
-    print("###########################")
-    return num_productos_limitar
-
-
-def gen_url(busqueda, precio_minimo, precio_maximo):
-    # return "asbc%d" % (precio_maximo)
-    # return "abasdfas{PM}".format(PM=precio_maximo)
-    result = "https://es.wallapop.com/search?keywords=" + busqueda
-    if precio_minimo:
-        result += "&min_sale_price=" + str(precio_minimo)
-    if precio_maximo:
-        result += "&max_sale_price=" + str(precio_maximo)  # +"&latitude=40.4146500&longitude=-3.7004000
-    return result
-
 def imprimir_elementos(producto):
     print("Titulo: " + producto["titulo"])
     print("Precio: " + producto["precio"])
@@ -131,12 +59,10 @@ def imprimir_elementos(producto):
     print("###########################")
 
 
-def run(url_busc, busqueda, num_max_productos):
-    global driver # Esto como parametro de clase
-
+def run(busqueda, prec_min, prec_max, num_max_productos):
     # Iniciar telegram
     t = Telegram()
-    global csv_class
+
     csv_class = CSV(busqueda)
 
     # Inicia base de datos
@@ -147,18 +73,15 @@ def run(url_busc, busqueda, num_max_productos):
     # Tiempo entre busquedas en segundos
     segundos_dormidos = 3600  # 3600 seg = 1 hora
 
-    wd = WebDriver()
+
+    # Abre un navegador de Firefox y navega por la pagina web
+    options = Options()
+    # Modo headless
+    options.headless = False
+    c = Cralwer(options)
 
     while True:
-
-        wdriver = wd.iniciar_firefox(url_busc)
-
-        cr = crawler.Crawler(wdriver)
-
-        cr.aceptar_cookies()
-        cr.click_mas_productos()
-        cr.scroll_hasta_final()
-        contador, array_urls = cr.clickear_cada_producto(array_urls, num_max_productos, t)
+        c.run(busqueda, prec_min, prec_max, num_max_productos)
 
         print(str(contador) + " nuevos productos encontrados")
 
@@ -193,21 +116,33 @@ def run(url_busc, busqueda, num_max_productos):
 #     else:
 #         main()
 
+
 driver = None
 
 
 if __name__ == '__main__':
-
-    # Instancia la clase, imprime wallapop crawler
-    vista = Vista()
-
     # Pregunta que buscar y demas filtros
     if os.environ.get('CLI', None):
-        url_buscar, producto_busqueda = vista.preguntar_busqueda()
-        productos_limitar = vista.limitar_busqueda()
+        print("Especifique que buscar: ", end='')
+        busqueda = input()
+
+        # por defecto a para que se meta en el while y pregunta hasta conseguir s o n
+        precio_boolean = 'a'
+
+        while not (precio_boolean == 's' or precio_boolean == 'n'):
+            print("¿Quieres filtrar los productos por precio? [s/n]: ", end='')
+            precio_boolean = input()
+
+        if precio_boolean == 's':
+            print("Precio minimo: ", end='')
+            precio_min = input()
+            print("Precio maximo: ", end='')
+            precio_max = input()
+        productos_limitar = 5
     else:
-        producto_busqueda = os.environ.get('BUSQUEDA', 'bici enduro')
-        url_buscar = gen_url(producto_busqueda, 2000, 2000)
+        busqueda = os.environ.get('BUSQUEDA', 'bici enduro')
+        precio_min = os.environ.get('PRECIO_MIN', None)
+        precio_max = os.environ.get('PRECIO_MAX', None)
         productos_limitar = int(os.environ.get('PRODUCTOS_LIMITAR', 5))
 
-    run(url_buscar, producto_busqueda, productos_limitar)
+    run(busqueda, precio_min, precio_max, productos_limitar)

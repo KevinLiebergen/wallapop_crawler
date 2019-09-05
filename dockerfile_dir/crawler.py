@@ -8,13 +8,32 @@ import re
 import time
 import sys
 
-import walla_crawler
-
 
 class Crawler:
 
-    def __init__(self, driver):
-        self.driver = driver
+    def __init__(self, options):
+        self.driver = webdriver.Firefox(options=options)
+        self.array_urls
+
+    def gen_url(self, busqueda, precio_minimo, precio_maximo, num_max_productos):
+        # return "asbc%d" % (precio_maximo)
+        # return "abasdfas{PM}".format(PM=precio_maximo)
+        result = "https://es.wallapop.com/search?keywords=" + busqueda
+        if precio_minimo:
+            result += "&min_sale_price=" + str(precio_minimo)
+        if precio_maximo:
+            result += "&max_sale_price=" + str(precio_maximo)  # +"&latitude=40.4146500&longitude=-3.7004000
+        return result
+
+    def run(self, busqueda, prec_min, prec_max, num_max_productos):
+        url = self.gen_url()
+        self.driver.get(url)
+
+        self.aceptar_cookies()
+        self.click_mas_productos()
+        self.scroll_hasta_final()
+
+        contador, array_urls = self.clickear_cada_producto(num_max_productos)
 
     def aceptar_cookies(self):
         # wait explicito que espera a que salga el popup de las cookies para aceptarlo
@@ -61,25 +80,44 @@ class Crawler:
                 break
             last_height = new_height
 
-    def clickear_cada_producto(self, urls, max_productos, telegram):
+    def get_product(self, product_link):
+
+        localizacion = driver.find_element_by_css_selector('.card-product-detail-location').text.split(',')
+
+        self.titulo = driver.find_elements_by_css_selector('.card-product-detail-title')[0].text
+        self.precio = driver.find_elements_by_css_selector('.card-product-detail-price')[0].text
+        self.descripcion = driver.find_elements_by_css_selector('.card-product-detail-description')[0].text
+        # Para la localizacion se encuentra ciudad y barrio en una misma etiqueta, se separa por una coma, el
+        # primer texto es el barrio y el segundo la ciudad (he puesto ultimo xq 1 daba error)
+        self.barrio = localizacion[0]
+        self.ciudad = localizacion[len(localizacion) - 1].lstrip()
+        self.fechaPublicacion = driver.find_element_by_css_selector('.card-product-detail-user-stats-published').text
+        self.puntuacion = driver.find_element_by_css_selector('.card-profile-rating').get_attribute("data-score")
+        self.imagenURL = driver.find_element_by_css_selector(
+            '#js-card-slider-main > li:nth-child(1) > img:nth-child(1)').get_attribute("src"),
+        self.url = driver.current_url
+
+
+    def clickear_cada_producto(self, max_productos):
         producto = 0
         soup = BeautifulSoup(self.driver.page_source, 'html.parser')
 
         for link in soup.find_all('a', href=re.compile('/item')):
-
-            if "https://es.wallapop.com" + link['href'] not in urls:
+            # TODO url.join
+            product_link = "https://es.wallapop.com" + link['href']
+            if product_link not in self.urls:
+                p = self.get_product(product_link)
                 self.driver.get("https://es.wallapop.com" + link['href'])
-
-                p = walla_crawler.Producto()
 
                 p.imprime_elementos()
 
-                telegram.enviar_mensajes_a_telegram(producto["url"])
+                # telegram.enviar_mensajes_a_telegram(producto["url"])
 
                 producto += 1
-                urls += ["https://es.wallapop.com" + link['href']]
+
+                self.urls += [product_link]
                 if producto == max_productos:
                     break
 
-        return producto, urls
+        return producto
 
