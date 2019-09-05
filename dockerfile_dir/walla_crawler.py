@@ -5,68 +5,6 @@ import os
 import crawler
 
 
-class Vista:
-    def __init__(self):
-        # Diseño por http://patorjk.com/software/taag/
-        print('''                                                                          
-         (  (          (  (                                           (           
-         )\))(   '   ) )\ )\   )                      (      ) (  (   )\  (  (    
-        ((_)()\ ) ( /(((_|(_| /( `  )   (  `  )     ( )(  ( /( )\))( ((_)))\ )(   
-        _(())\_)())(_))_  _ )(_))/(/(   )\ /(/(     )(()\ )(_)|(_)()\ _ /((_|()\  
-        \ \((_)/ ((_)_| || ((_)_((_)_\ ((_|(_)_\   ((_|(_|(_)__(()((_) (_))  ((_) 
-         \ \/\/ // _` | || / _` | '_ \) _ \ '_ \) / _| '_/ _` \ V  V / / -_)| '_| 
-          \_/\_/ \__,_|_||_\__,_| .__/\___/ .__/  \__|_| \__,_|\_/\_/|_\___||_|   
-                                |_|       |_|                                     
-              ''')
-
-    def preguntar_busqueda(self):
-        print("Especifique que buscar: ", end='')
-        self.busqueda = input()
-
-        # por defecto a para que se meta en el while y pregunta hasta conseguir s o n
-        precio_boolean = 'a'
-
-        while not (precio_boolean == 's' or precio_boolean == 'n'):
-            print("¿Quieres filtrar los productos por precio? [s/n]: ", end='')
-            precio_boolean = input()
-
-        if precio_boolean == 's':
-            print("Precio minimo: ", end='')
-            self.precio_minimo = input()
-            print("Precio maximo: ", end='')
-            self.precio_maximo = input()
-            self.url_busqueda = gen_url(self.busqueda, self.precio_minimo, self.precio_maximo)
-
-        else:
-            self.url_busqueda = "https://es.wallapop.com/search?keywords=" + self.busqueda
-            # +"&latitude=40.4146500&longitude=-3.7004000"
-
-        return self.url_busqueda, self.busqueda
-
-    def limitar_busqueda(self):
-        # Igual que antes
-        limitar_boolean = 'a'
-
-        while not (limitar_boolean == 's' or limitar_boolean == 'n'):
-            print("¿Limitar el número de productos? [s/n]: ", end='')
-            limitar_boolean = input()
-
-        if limitar_boolean == 's':
-            num_productos_limitar = 0
-            while not (num_productos_limitar > 0):
-                print("Numero de productos a limitar [> 0]: ", end='')
-                try:
-                    num_productos_limitar = int(input())
-                except ValueError:
-                    num_productos_limitar = 0
-
-        else:
-            num_productos_limitar = 100
-
-        print("###########################")
-        return num_productos_limitar
-
-
 class WebDriver:
     def __init__(self):
         # Abre un navegador de Firefox y navega por la pagina web
@@ -106,12 +44,79 @@ class Producto:
         #guardar_elemento_bbdd(self)
 
 
+def saludar():
+    # Diseño por http://patorjk.com/software/taag/
+    print('''                                                                          
+     (  (          (  (                                           (           
+     )\))(   '   ) )\ )\   )                      (      ) (  (   )\  (  (    
+    ((_)()\ ) ( /(((_|(_| /( `  )   (  `  )     ( )(  ( /( )\))( ((_)))\ )(   
+    _(())\_)())(_))_  _ )(_))/(/(   )\ /(/(     )(()\ )(_)|(_)()\ _ /((_|()\  
+    \ \((_)/ ((_)_| || ((_)_((_)_\ ((_|(_)_\   ((_|(_|(_)__(()((_) (_))  ((_) 
+     \ \/\/ // _` | || / _` | '_ \) _ \ '_ \) / _| '_/ _` \ V  V / / -_)| '_| 
+      \_/\_/ \__,_|_||_\__,_| .__/\___/ .__/  \__|_| \__,_|\_/\_/|_\___||_|   
+                            |_|       |_|                                     
+          ''')
+
+
+def preguntar_busqueda(self):
+    print("Especifique que buscar: ", end='')
+    self.busqueda = input()
+
+    # por defecto a para que se meta en el while y pregunta hasta conseguir s o n
+    precio_boolean = 'a'
+
+    while not (precio_boolean == 's' or precio_boolean == 'n'):
+        print("¿Quieres filtrar los productos por precio? [s/n]: ", end='')
+        precio_boolean = input()
+
+    if precio_boolean == 's':
+        print("Precio minimo: ", end='')
+        self.precio_minimo = input()
+        print("Precio maximo: ", end='')
+        self.precio_maximo = input()
+
+    self.url_busqueda = gen_url(self.busqueda, self.precio_minimo, self.precio_maximo)
+
+    # else:
+    #     self.url_busqueda = "https://es.wallapop.com/search?keywords=" + self.busqueda
+    #     # +"&latitude=40.4146500&longitude=-3.7004000"
+
+    return self.url_busqueda, self.busqueda
+
+
+def limitar_busqueda(self):
+    # Igual que antes
+    limitar_boolean = 'a'
+
+    while not (limitar_boolean == 's' or limitar_boolean == 'n'):
+        print("¿Limitar el número de productos? [s/n]: ", end='')
+        limitar_boolean = input()
+
+    if limitar_boolean == 's':
+        num_productos_limitar = 0
+        while not (num_productos_limitar > 0):
+            print("Numero de productos a limitar [> 0]: ", end='')
+            try:
+                num_productos_limitar = int(input())
+            except ValueError:
+                num_productos_limitar = 0
+
+    else:
+        num_productos_limitar = 100
+
+    print("###########################")
+    return num_productos_limitar
+
+
 def gen_url(busqueda, precio_minimo, precio_maximo):
     # return "asbc%d" % (precio_maximo)
     # return "abasdfas{PM}".format(PM=precio_maximo)
-    return "https://es.wallapop.com/search?keywords=" + busqueda + "&min_sale_price=" + str(precio_minimo) + \
-                          "&max_sale_price=" + str(precio_maximo)  # +"&latitude=40.4146500&longitude=-3.7004000
-
+    result = "https://es.wallapop.com/search?keywords=" + busqueda
+    if precio_minimo:
+        result += "&min_sale_price=" + str(precio_minimo)
+    if precio_maximo:
+        result += "&max_sale_price=" + str(precio_maximo)  # +"&latitude=40.4146500&longitude=-3.7004000
+    return result
 
 def imprimir_elementos(producto):
     print("Titulo: " + producto["titulo"])
