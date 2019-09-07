@@ -82,7 +82,10 @@ def run(nombre_producto, prec_min, prec_max, num_max_productos):
 #     else:
 #         main()
 
+
 if __name__ == '__main__':
+
+    saludar()
     # Pregunta que buscar y demas filtros
     if os.environ.get('CLI', None):
         print("Especifique que buscar: ", end='')

@@ -20,7 +20,7 @@ class Crawler:
 
     def __init__(self, options):
         self.driver = webdriver.Firefox(options=options)
-        self.array_urls
+        self.urls = []
 
     def gen_url(self, busqueda, precio_minimo, precio_maximo):
         # return "asbc%d" % (precio_maximo)
@@ -33,7 +33,7 @@ class Crawler:
         return result
 
     def run(self, busqueda, prec_min, prec_max, num_max_productos):
-        url = self.gen_url(self, busqueda, prec_min, prec_max)
+        url = self.gen_url(busqueda, prec_min, prec_max)
         self.driver.get(url)
 
         self.aceptar_cookies()
