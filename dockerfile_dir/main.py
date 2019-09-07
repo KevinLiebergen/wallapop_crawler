@@ -1,35 +1,23 @@
-from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 import time
 import os
-from outputs import telegram
-from outputs import csv
+from crawler import Crawler
+
+
+# def imprime_elementos(self):
+#     imprimir_elementos(self)
+#     CSV.escribir_a_csv(self, busqueda)
+#
+#     # TODO Método dentro del crawler
+#     #guardar_elemento_bbdd(self)
 
 
 
-class Producto:
-    def __init__(self):
-        localizacion = driver.find_element_by_css_selector('.card-product-detail-location').text.split(',')
+'''
+PREGUNTAR A JUNQUERA SI LAS LLAMADAS A LA BD, TELEGRAM Y CSV SE HACEN 
+DESDE EL MAIN O DESDE LA CLASE CRAWLER, AHORA ESTA EN CRAWLER
 
-        self.titulo = driver.find_elements_by_css_selector('.card-product-detail-title')[0].text
-        self.precio = driver.find_elements_by_css_selector('.card-product-detail-price')[0].text
-        self.descripcion = driver.find_elements_by_css_selector('.card-product-detail-description')[0].text
-        # Para la localizacion se encuentra ciudad y barrio en una misma etiqueta, se separa por una coma, el
-        # primer texto es el barrio y el segundo la ciudad (he puesto ultimo xq 1 daba error)
-        self.barrio = localizacion[0]
-        self.ciudad = localizacion[len(localizacion) - 1].lstrip()
-        self.fechaPublicacion = driver.find_element_by_css_selector('.card-product-detail-user-stats-published').text
-        self.puntuacion = driver.find_element_by_css_selector('.card-profile-rating').get_attribute("data-score")
-        self.imagenURL = driver.find_element_by_css_selector(
-            '#js-card-slider-main > li:nth-child(1) > img:nth-child(1)').get_attribute("src"),
-        self.url = driver.current_url
-
-    def imprime_elementos(self):
-        imprimir_elementos(self)
-        csv_class.escribir_a_csv(self, busqueda)
-
-        # TODO Método dentro del crawler
-        #guardar_elemento_bbdd(self)
+'''
 
 
 def saludar():
@@ -46,47 +34,25 @@ def saludar():
           ''')
 
 
-def imprimir_elementos(producto):
-    print("Titulo: " + producto["titulo"])
-    print("Precio: " + producto["precio"])
-    print("Descripcion: " + producto["descripcion"])
-    print("Barrio: " + producto["barrio"])
-    print("Ciudad: " + producto["ciudad"])
-    print("Fecha publicacion: " + producto["fechaPublicacion"])
-    print("Puntuacion vendedor: " + producto["puntuacion"])
-    print("Imagen: " + producto["imagenURL"])
-    print("URL: " + producto["url"])
-    print("###########################")
+def run(nombre_producto, prec_min, prec_max, num_max_productos):
 
-
-def run(busqueda, prec_min, prec_max, num_max_productos):
-    # Iniciar telegram
-    t = Telegram()
-
-    csv_class = CSV(busqueda)
-
-    # Inicia base de datos
-    bbdd = BaseDatos()
-    bbdd.crear_nueva_tabla()
-    array_urls = [] # Esto como parametro de clase
+    array_urls = []  # Esto como parametro de clase
 
     # Tiempo entre busquedas en segundos
     segundos_dormidos = 3600  # 3600 seg = 1 hora
-
 
     # Abre un navegador de Firefox y navega por la pagina web
     options = Options()
     # Modo headless
     options.headless = False
-    c = Cralwer(options)
+    c = Crawler(options)
 
     while True:
-        c.run(busqueda, prec_min, prec_max, num_max_productos)
+        contador, array_urls = c.run(nombre_producto, prec_min, prec_max, num_max_productos)
 
         print(str(contador) + " nuevos productos encontrados")
 
-        # Cierra el navegador
-        driver.close()
+        c.cerrar_navegador()
 
         print("Esperando " + str(segundos_dormidos) + " segundos para volver a buscar")
         print("###########################")
@@ -115,10 +81,6 @@ def run(busqueda, prec_min, prec_max, num_max_productos):
 #         main_cli()
 #     else:
 #         main()
-
-
-driver = None
-
 
 if __name__ == '__main__':
     # Pregunta que buscar y demas filtros
