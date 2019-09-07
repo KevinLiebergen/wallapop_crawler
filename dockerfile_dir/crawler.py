@@ -1,3 +1,4 @@
+from selenium import webdriver
 from selenium.common.exceptions import ElementNotInteractableException
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
@@ -8,6 +9,12 @@ import re
 import time
 import sys
 
+# Preguntar junquera si va aqui o en el main
+from outputs.telegram import Telegram
+from outputs.csv import CSV
+from outputs.db import BaseDatos
+import outputs.informacion_pantalla
+
 
 class Crawler:
 
@@ -15,7 +22,7 @@ class Crawler:
         self.driver = webdriver.Firefox(options=options)
         self.array_urls
 
-    def gen_url(self, busqueda, precio_minimo, precio_maximo, num_max_productos):
+    def gen_url(self, busqueda, precio_minimo, precio_maximo):
         # return "asbc%d" % (precio_maximo)
         # return "abasdfas{PM}".format(PM=precio_maximo)
         result = "https://es.wallapop.com/search?keywords=" + busqueda
@@ -26,7 +33,7 @@ class Crawler:
         return result
 
     def run(self, busqueda, prec_min, prec_max, num_max_productos):
-        url = self.gen_url()
+        url = self.gen_url(self, busqueda, prec_min, prec_max)
         self.driver.get(url)
 
         self.aceptar_cookies()
@@ -52,8 +59,9 @@ class Crawler:
             print("No interactuable...")
 
     def click_mas_productos(self):
-        boton_mas_productos = self.driver.find_element_by_css_selector('.Button')
-        self.driver.execute_script("arguments[0].click();", boton_mas_productos)
+        if EC.presence_of_element_located((By.CSS_SELECTOR, ".Button")):
+            boton_mas_productos = self.driver.find_element_by_css_selector('.Button')
+            self.driver.execute_script("arguments[0].click();", boton_mas_productos)
 
     def scroll_hasta_final(self):
         scroll_pause_time = 1
@@ -82,21 +90,22 @@ class Crawler:
 
     def get_product(self, product_link):
 
-        localizacion = driver.find_element_by_css_selector('.card-product-detail-location').text.split(',')
+        localizacion = self.driver.find_element_by_css_selector('.card-product-detail-location').text.split(',')
 
-        self.titulo = driver.find_elements_by_css_selector('.card-product-detail-title')[0].text
-        self.precio = driver.find_elements_by_css_selector('.card-product-detail-price')[0].text
-        self.descripcion = driver.find_elements_by_css_selector('.card-product-detail-description')[0].text
+        self.titulo = self.driver.find_elements_by_css_selector('.card-product-detail-title')[0].text
+        self.precio = self.driver.find_elements_by_css_selector('.card-product-detail-price')[0].text
+        self.descripcion = self.driver.find_elements_by_css_selector('.card-product-detail-description')[0].text
         # Para la localizacion se encuentra ciudad y barrio en una misma etiqueta, se separa por una coma, el
         # primer texto es el barrio y el segundo la ciudad (he puesto ultimo xq 1 daba error)
         self.barrio = localizacion[0]
         self.ciudad = localizacion[len(localizacion) - 1].lstrip()
-        self.fechaPublicacion = driver.find_element_by_css_selector('.card-product-detail-user-stats-published').text
-        self.puntuacion = driver.find_element_by_css_selector('.card-profile-rating').get_attribute("data-score")
-        self.imagenURL = driver.find_element_by_css_selector(
+        self.fechaPublicacion = self.driver.find_element_by_css_selector('.card-product-detail-user-stats-published').text
+        self.puntuacion = self.driver.find_element_by_css_selector('.card-profile-rating').get_attribute("data-score")
+        self.imagenURL = self.driver.find_element_by_css_selector(
             '#js-card-slider-main > li:nth-child(1) > img:nth-child(1)').get_attribute("src"),
-        self.url = driver.current_url
+        self.url = product_link
 
+        return self
 
     def clickear_cada_producto(self, max_productos):
         producto = 0
@@ -106,10 +115,11 @@ class Crawler:
             # TODO url.join
             product_link = "https://es.wallapop.com" + link['href']
             if product_link not in self.urls:
-                p = self.get_product(product_link)
                 self.driver.get("https://es.wallapop.com" + link['href'])
+                p = self.get_product(product_link)
 
-                p.imprime_elementos()
+                informacion = outputs.informacion_pantalla.InformacionPantalla(p)
+                informacion.imprimir_elementos()
 
                 # telegram.enviar_mensajes_a_telegram(producto["url"])
 
@@ -120,4 +130,7 @@ class Crawler:
                     break
 
         return producto
+
+    def cerrar_navegador(self):
+        self.driver.close()
 
