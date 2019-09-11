@@ -1,23 +1,7 @@
 from selenium.webdriver.firefox.options import Options
-import time
 import os
 from crawler import Crawler
-
-
-# def imprime_elementos(self):
-#     imprimir_elementos(self)
-#     CSV.escribir_a_csv(self, busqueda)
-#
-#     # TODO Método dentro del crawler
-#     #guardar_elemento_bbdd(self)
-
-
-
-'''
-PREGUNTAR A JUNQUERA SI LAS LLAMADAS A LA BD, TELEGRAM Y CSV SE HACEN 
-DESDE EL MAIN O DESDE LA CLASE CRAWLER, AHORA ESTA EN CRAWLER
-
-'''
+import logging
 
 
 def saludar():
@@ -34,44 +18,18 @@ def saludar():
           ''')
 
 
-def run(nombre_producto, prec_min, prec_max, num_max_productos):
+def run(nombre_producto, prec_min=0, prec_max=20000, num_max_productos=50):
 
-    array_urls = []  # Esto como parametro de clase
+    # Segundos entre busquedas
+    segundos_dormidos = 15  # 3600 seg = 1 hora
 
-    # Tiempo entre busquedas en segundos
-    segundos_dormidos = 3600  # 3600 seg = 1 hora
-
-    # Abre un navegador de Firefox y navega por la pagina web
-    options = Options()
     # Modo headless
+    options = Options()
     options.headless = False
     c = Crawler(options)
 
-    while True:
-        contador, array_urls = c.run(nombre_producto, prec_min, prec_max, num_max_productos)
+    c.run(nombre_producto, prec_min, prec_max, num_max_productos, sleep_time=segundos_dormidos)
 
-        print(str(contador) + " nuevos productos encontrados")
-
-        c.cerrar_navegador()
-
-        print("Esperando " + str(segundos_dormidos) + " segundos para volver a buscar")
-        print("###########################")
-
-        time.sleep(segundos_dormidos)
-
-# def run(producto, n_productos):
-#     pass
-#
-# def main():
-#     producto = args.get('producto', 'default')
-#     n_productos = args.get('n_productos', 5)
-#     ...
-#     run(producto, n_productos)
-#
-# def main_cli():
-#     producto = input("Qué product quieres?")
-#     ...
-#     run(producto, n_productos)
 # import argparse
 # if __name__ == '__main__':
 #     parser = argparse.ArgumentParser(description="")
@@ -83,31 +41,65 @@ def run(nombre_producto, prec_min, prec_max, num_max_productos):
 #         main()
 
 
-if __name__ == '__main__':
+def main_cli():
 
-    saludar()
-    # Pregunta que buscar y demas filtros
-    if os.environ.get('CLI', None):
-        print("Especifique que buscar: ", end='')
-        busqueda = input()
+    precio_min = None
+    precio_max = None
+    num_productos_limitar = None
 
-        # por defecto a para que se meta en el while y pregunta hasta conseguir s o n
-        precio_boolean = 'a'
+    print("Especifique que buscar: ", end='')
+    busqueda = input()
 
-        while not (precio_boolean == 's' or precio_boolean == 'n'):
-            print("¿Quieres filtrar los productos por precio? [s/n]: ", end='')
-            precio_boolean = input()
+    while True:
+        print("¿Quieres filtrar los productos por precio? [s/n]: ", end='')
+        precio_boolean = input()
 
         if precio_boolean == 's':
             print("Precio minimo: ", end='')
             precio_min = input()
             print("Precio maximo: ", end='')
             precio_max = input()
-        productos_limitar = 5
-    else:
-        busqueda = os.environ.get('BUSQUEDA', 'bici enduro')
-        precio_min = os.environ.get('PRECIO_MIN', None)
-        precio_max = os.environ.get('PRECIO_MAX', None)
-        productos_limitar = int(os.environ.get('PRODUCTOS_LIMITAR', 5))
+
+            break
+
+        elif precio_boolean == 'n':
+            break
+
+    while True:
+        print("¿Limitar el número de productos? [s/n]: ", end='')
+        limitar_boolean = input()
+
+        if limitar_boolean == 's':
+            num_productos_limitar = 0
+            while not (num_productos_limitar > 0):
+                print("Numero de productos a limitar [> 0]: ", end='')
+                try:
+                    num_productos_limitar = int(input())
+                except ValueError:
+                    num_productos_limitar = 0
+
+        elif limitar_boolean == 'n':
+            break
+
+    run(busqueda, int(precio_min), int(precio_max), int(num_productos_limitar))
+
+
+def main():
+    busqueda = os.environ.get('BUSQUEDA', 'bici enduro')
+    precio_min = os.environ.get('PRECIO_MIN', 50)
+    precio_max = os.environ.get('PRECIO_MAX', 100)
+    productos_limitar = int(os.environ.get('PRODUCTOS_LIMITAR', 5))
 
     run(busqueda, precio_min, precio_max, productos_limitar)
+
+
+if __name__ == '__main__':
+
+    logging.basicConfig(level=logging.INFO)
+    saludar()
+    # Si existe variable de entorno CLI, pregunta al usuario
+    if os.environ.get('CLI', None):
+        main_cli()
+    # Si no lee los argumentos que le pasamos
+    else:
+        main()
