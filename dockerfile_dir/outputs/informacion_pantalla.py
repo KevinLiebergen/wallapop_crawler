@@ -1,7 +1,7 @@
 
 class InformacionPantalla:
     def __init__(self, producto):
-        self.titulo = producto["titulo"]
+        self.titulo = producto.titulo
         self.precio = producto["precio"]
         self.descripcion = producto["descripcion"]
         self.barrio = producto["barrio"]
