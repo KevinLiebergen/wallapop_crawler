@@ -55,7 +55,6 @@ no va bien por los puertos, entender como crawler a la imagen mysql y este a maq
 
 ```bash
 $ docker-compose build
-$ docker-compose up db
 $ docker-compose run crawler
 ```
 __No se puede hacer `$ docker-compose up` porque up no es interactivo, por eso hacemos run crawler__

@@ -17,4 +17,4 @@ COPY . /crawler
 # Descarga instalacion web driver
 RUN sh gecko_installation.sh
 
-CMD ["python3", "./walla_crawler.py"]
+ENTRYPOINT ["python3", "./walla_crawler.py"]
