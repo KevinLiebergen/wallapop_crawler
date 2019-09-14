@@ -21,7 +21,7 @@ def saludar():
 def run(nombre_producto, prec_min=0, prec_max=20000, num_max_productos=50):
 
     # Segundos entre busquedas
-    segundos_dormidos = 15  # 3600 seg = 1 hora
+    segundos_dormidos = 60  # 3600 seg = 1 hora
 
     # Modo headless
     options = Options()
@@ -29,16 +29,6 @@ def run(nombre_producto, prec_min=0, prec_max=20000, num_max_productos=50):
     c = Crawler(options)
 
     c.run(nombre_producto, prec_min, prec_max, num_max_productos, sleep_time=segundos_dormidos)
-
-# import argparse
-# if __name__ == '__main__':
-#     parser = argparse.ArgumentParser(description="")
-#
-#     print(p)
-#     if '--cli' in args:
-#         main_cli()
-#     else:
-#         main()
 
 
 def main_cli():
@@ -68,6 +58,8 @@ def main_cli():
     while True:
         print("¿Limitar el número de productos? [s/n]: ", end='')
         limitar_boolean = input()
+        print("¿Limitar el número de productos? [s/n]: ", end='')
+        limitar_boolean = input()
 
         if limitar_boolean == 's':
             num_productos_limitar = 0
@@ -86,11 +78,21 @@ def main_cli():
 
 def main():
     busqueda = os.environ.get('BUSQUEDA', 'bici enduro')
-    precio_min = os.environ.get('PRECIO_MIN', 50)
-    precio_max = os.environ.get('PRECIO_MAX', 100)
+    precio_min = os.environ.get('PRECIO_MIN', 1100)
+    precio_max = os.environ.get('PRECIO_MAX', 1400)
     productos_limitar = int(os.environ.get('PRODUCTOS_LIMITAR', 5))
 
     run(busqueda, precio_min, precio_max, productos_limitar)
+
+# import argparse
+# if __name__ == '__main__':
+#     parser = argparse.ArgumentParser(description="")
+#
+#     print(p)
+#     if '--cli' in args:
+#         main_cli()
+#     else:
+#         main()
 
 
 if __name__ == '__main__':

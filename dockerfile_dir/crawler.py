@@ -51,7 +51,6 @@ class Crawler:
         self.visited = []
         self.unprocessed = []
         self.known = []
-#        self.soup = BeautifulSoup(self.driver.page_source, 'html.parser')
 
     def run(self, busqueda, prec_min, prec_max, num_max_productos, sleep_time=3600):
         fichero = csv.CSV(busqueda)
@@ -69,8 +68,6 @@ class Crawler:
             # Devuelve todas las urls de la página que no estén en known
             urls = self.get_product_urls()
             self.known += urls
-            # inserta urls ya insertadas antes, preguntar junquera si es necesario
-            # usar un set
             self.unprocessed += urls
             for i in range(num_max_productos):
                 url = self.unprocessed.pop()
@@ -86,7 +83,7 @@ class Crawler:
             logging.info(" %d nuevos productos encontrados" % new_urls)
 
             logging.info("Esperando %d segundos para volver a buscar" % sleep_time)
-            logging.info("#"*16)
+            logging.info("#"*32)
 
             time.sleep(sleep_time)
 
@@ -111,7 +108,7 @@ class Crawler:
             self.driver.find_elements_by_css_selector('.qc-cmp-button')[1].click()
 
         except TimeoutException:
-            logging.error("Tardando demasiado tiempo\n")
+            logging.error("No hay boton de aceptar cookies..\n")
 
         except ElementNotInteractableException:
             logging.error("No interactuable...")
@@ -150,7 +147,8 @@ class Crawler:
         res = []
         soup = BeautifulSoup(self.driver.page_source, 'html.parser')
         for link in soup.find_all('a', href=re.compile('/item')):
-            res.append(link['href'])
+            if link['href'] not in self.known:
+                res.append(link['href'])
         return res
 
     def get_product(self, product_link):
