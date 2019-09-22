@@ -1,8 +1,6 @@
 from selenium.webdriver.firefox.options import Options
-import os
 from crawler import Crawler
 import argparse
-import logging
 
 
 def saludar():
@@ -79,15 +77,10 @@ def main_cli():
 
 def main(argumentos):
 
-    # busqueda = os.environ.get('BUSQUEDA', 'bici enduro')
-    # precio_min = os.environ.get('PRECIO_MIN', 1100)
-    # precio_max = os.environ.get('PRECIO_MAX', 1400)
-    # productos_limitar = int(os.environ.get('PRODUCTOS_LIMITAR', 5))
-
-    busqueda = f'{args.search}'
-    precio_min = args.min
-    precio_max = args.max
-    productos_limitar = args.limit
+    busqueda = f'{argumentos.search}'
+    precio_min = argumentos.min
+    precio_max = argumentos.max
+    productos_limitar = argumentos.limit
 
     run(busqueda, precio_min, precio_max, productos_limitar)
 
@@ -96,17 +89,10 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Especifica opciones para el crawler')
 
-    parser.add_argument('--search', required=False,
-                        help="Producto a buscar")
-
-    parser.add_argument('--min', type=int, required=False,
-                        help="Define el precio minimo de la busqueda del producto")
-
-    parser.add_argument('--max', type=int, required=False,
-                        help="Define el precio maximo de la busqueda del producto")
-
-    parser.add_argument('--limit', type=int, required=False,
-                        help="Numero de productos que buscar por iteracion")
+    parser.add_argument('--search', required=False, help="Producto a buscar")
+    parser.add_argument('--min', type=int, required=False, help="Define el precio minimo de la busqueda del producto")
+    parser.add_argument('--max', type=int, required=False, help="Define el precio maximo de la busqueda del producto")
+    parser.add_argument('--limit', type=int, required=False, help="Numero de productos que buscar por iteracion")
 
     args = parser.parse_args()
 
