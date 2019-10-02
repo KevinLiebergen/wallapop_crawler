@@ -88,7 +88,6 @@ class Crawler:
             time.sleep(sleep_time)
 
     def gen_url(self, busqueda, precio_minimo, precio_maximo):
-        # return "asbc%d" % (precio_maximo)
         # return "abasdfas{PM}".format(PM=precio_maximo)
         result = "https://es.wallapop.com/search?keywords=%s" % busqueda
         if precio_minimo:
@@ -98,7 +97,13 @@ class Crawler:
         return result
 
     def aceptar_cookies(self):
-        # wait explicito que espera a que salga el popup de las cookies para aceptarlo
+        # self.driver.execute_script('''
+        #     document.addEventListener("DOMContentLoaded", function(){
+        #         window.__cmpui("setAndSaveAllConsent", !0);
+        #     });
+        # ''')
+
+    # wait explicito que espera a que salga el popup de las cookies para aceptarlo
         try:
             wait = WebDriverWait(self.driver, 20)
             wait.until(ec.presence_of_element_located((By.CSS_SELECTOR, ".qc-cmp-button")))
