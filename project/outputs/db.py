@@ -8,8 +8,8 @@ class BaseDatos:
         db_addr = os.environ.get('DB_ADDR', 'localhost')
 
         self.db = pymysql.connect(
-            host=db_addr, port=3306, user="root",
-            passwd="root", db="crawler"
+            host=db_addr, port=3306, user="wallapop",
+            passwd="wallapop", db="crawler"
         )
         self.cursor = self.db.cursor()
 
