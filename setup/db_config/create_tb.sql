@@ -1,6 +1,5 @@
-CREATE DATABASE wallapop;
 
-use wallapop;
+use wallapop_db;
 
 CREATE TABLE Vendedor(
 	id INT NOT NULL AUTO_INCREMENT,
