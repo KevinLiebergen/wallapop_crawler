@@ -1,7 +1,6 @@
 from selenium.webdriver.firefox.options import Options
-import os
 from crawler import Crawler
-import logging
+import argparse
 
 
 def saludar():
@@ -58,8 +57,6 @@ def main_cli():
     while True:
         print("¿Limitar el número de productos? [s/n]: ", end='')
         limitar_boolean = input()
-        print("¿Limitar el número de productos? [s/n]: ", end='')
-        limitar_boolean = input()
 
         if limitar_boolean == 's':
             num_productos_limitar = 0
@@ -67,8 +64,10 @@ def main_cli():
                 print("Numero de productos a limitar [> 0]: ", end='')
                 try:
                     num_productos_limitar = int(input())
+                    break
                 except ValueError:
                     num_productos_limitar = 0
+            break
 
         elif limitar_boolean == 'n':
             break
@@ -76,32 +75,32 @@ def main_cli():
     run(busqueda, int(precio_min), int(precio_max), int(num_productos_limitar))
 
 
-def main():
-    busqueda = os.environ.get('BUSQUEDA', 'bici enduro')
-    precio_min = os.environ.get('PRECIO_MIN', 1100)
-    precio_max = os.environ.get('PRECIO_MAX', 1400)
-    productos_limitar = int(os.environ.get('PRODUCTOS_LIMITAR', 5))
+def main(argumentos):
+
+    busqueda = f'{argumentos.search}'
+    precio_min = argumentos.min
+    precio_max = argumentos.max
+    productos_limitar = argumentos.limit
 
     run(busqueda, precio_min, precio_max, productos_limitar)
-
-# import argparse
-# if __name__ == '__main__':
-#     parser = argparse.ArgumentParser(description="")
-#
-#     print(p)
-#     if '--cli' in args:
-#         main_cli()
-#     else:
-#         main()
 
 
 if __name__ == '__main__':
 
-    logging.basicConfig(level=logging.INFO)
+    parser = argparse.ArgumentParser(description='Especifica opciones para el crawler')
+
+    parser.add_argument('--search', required=False, help="Producto a buscar")
+    parser.add_argument('--min', type=int, required=False, help="Define el precio minimo de la busqueda del producto")
+    parser.add_argument('--max', type=int, required=False, help="Define el precio maximo de la busqueda del producto")
+    parser.add_argument('--limit', type=int, required=False, help="Numero de productos que buscar por iteracion")
+
+    args = parser.parse_args()
+
     saludar()
-    # Si existe variable de entorno CLI, pregunta al usuario
-    if os.environ.get('CLI', None):
-        main_cli()
+
     # Si no lee los argumentos que le pasamos
+    if args.search:
+        main(args)
+    # Si existe variable de entorno CLI, pregunta al usuario
     else:
-        main()
+        main_cli()
