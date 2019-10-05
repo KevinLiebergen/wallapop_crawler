@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+echo "Actualizando repositorios..."
+sudo apt-get update > /dev/null
+
 sh firefox_install.sh
 
 sh gecko_installation.sh
