@@ -12,3 +12,6 @@ api_telegram.json
 
 *.pyc
 *.swp
+
+
+.scannerwork/
