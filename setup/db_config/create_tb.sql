@@ -1,8 +1,7 @@
-CREATE DATABASE wallapop;
 
-use wallapop;
+use wallapop_db;
 
-CREATE TABLE Vendedor(
+CREATE TABLE vendedor(
 	id INT NOT NULL AUTO_INCREMENT,
 	barrio INT,
 	ciudad VARCHAR(30),
@@ -10,7 +9,7 @@ CREATE TABLE Vendedor(
 	PRIMARY KEY ( id)
 );
  
-CREATE TABLE Busqueda(
+CREATE TABLE busqueda(
 	id INT NOT NULL AUTO_INCREMENT,
 	busqueda VARCHAR(70),
 	PRIMARY KEY ( id)

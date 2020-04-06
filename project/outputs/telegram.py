@@ -1,10 +1,9 @@
 import telebot
 import json
 
-
 class Telegram:
     def __init__(self):
-        with open('api_telegram.json') as json_file:
+        with open('outputs/api_telegram.json') as json_file:
             data = json.load(json_file)
 
             self.token = data['token']
