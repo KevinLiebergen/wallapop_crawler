@@ -4,30 +4,31 @@ Crawler creado mediante la librería Selenium de python. Se han implementado fun
 - Que cada anuncio que se visita se envía la URL del producto a tu grupo propio de Telegram (Mirar en configuración de Telegram).
 - Anuncios crawleados se guardan en un csv.
 - Se muestra por terminal los productos.
-- Los productos se guarden a una base de datos con sus respectivos campos.
+- Que los productos se guarden a una base de datos con sus respectivos campos.
 
-# Instalacion
+# Instalación
 
 ```shell
 $ git clone https://github.com/KevinLiebergen/wallapop_crawler.git
 $ cd wallapop_crawler
 $ pip3 install virtualenv
 $ virtualenv venv
+$ source venv/bin/activate
+(venv) $ pip3 install -r requirements.txt
 ```
 
-Setup entorno:
+# Setup entorno
 
-- Mediante script instalación
+1. Mediante script instalación
 ```shell
 $ cd setup
 $ sh setup.sh
 ````
 
-* Credenciales MySQL
-  * Usuario: 'walla_user' 
-  * Contraseña: 'walla_password'
+* Credenciales MySQL que se crean:
+>  Usuario: walla_user <br> Contraseña: walla_password
 
-- Instalación Gecko driver paso por paso
+2. Instalación Gecko driver paso por paso
 
 ```shell
 $ wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz
@@ -35,21 +36,22 @@ $ tar xvfz geckodriver-v0.24.0-linux64.tar.gz
 $ sudo mv geckodriver /usr/local/bin
 $ rm geckodriver-v0.24.0-linux64.tar.gz
 ```
-# Descarga librerías
-
-```shell
-$ source venv/bin/activate
-
-(venv) $ pip3 install -r requirements.txt
-```
 
 # Ejecución
 
-Únicamente ejecutar el script, por defecto viene configurado, antes de ejecutarlo leer detenidamente la sección de __configuración Telegram__ y __conexión base de datos__ para saber si comentar o no esa parte del código. 
-<br> `(venv) $ cd project`
-<br>`(venv) $ python3 main.py`
+## Código
 
-Para ejecutar desde Docker (En desarrollo, hay fallos):
+Leer detenidamente la sección de __configuración Telegram__ y __conexión base de datos__ para saber si comentar o no esa parte del código. 
+
+```shell
+(venv) $ cd project
+(venv) $ python3 main.py
+```
+
+
+## Docker
+
+__En desarrollo__:
 
 - Para configurar el envío de mensajes a Telegram lee detenidamente la sección __configuración Telegram__, si no deseas el envío de mensajes comenta las llamadas a los métodos `configurarTelegram()` y `enviar_mensajes_a_telegram()`.
 - Activa la opción `options.headless = True` en la línea 274 
@@ -73,6 +75,10 @@ __No se puede hacer `$ docker-compose up` porque up no es interactivo, por eso h
 
 # Configuración Telegram
 
+Para deshabilitar esta opción únicamente es necesario comentar las llamadas a los métodos 
+`configurar_telegram()` y `enviar_mensajes_a_telegram(producto["url"])` __cerca__ del fichero `crawler.py` y la instanciación, 
+`telegram.Telegram()` del mismo fichero.
+
 Este script implementa la opción de enviar los anuncios a un grupo privado de Telegram, para ello es necesario:
 - Crear tu propio bot
     - Comienza una conversación con `@BotFather` y escribe `/newbot`. Especifica el nombre y el nickname
@@ -82,11 +88,9 @@ Este script implementa la opción de enviar los anuncios a un grupo privado de T
 
 <br>[Video resumen como crear tu bot y conocer tu token y chat id](https://www.youtube.com/watch?v=UhZtrhV7t3U)
 
-<br>Para deshabilitar esta opción únicamente es necesario comentar las llamadas a los métodos 
-`configurar_telegram()` y `enviar_mensajes_a_telegram(producto["url"])` __cerca__ del fichero `crawler.py` y la instanciación, 
-`telegram.Telegram()` del mismo fichero.
-
 # Conexión base de datos
+
+__Por defecto,__ la instalación `setup.sh` realiza todo lo necesario para configurar la base de datos. Si ha ejecutado `setup.sh` correctamente no es necesario continuar con lo siguiente.
 
 Se ha implementado una opción para conectar los productos crawleados a una base de datos.
 
@@ -109,13 +113,24 @@ mysql> CREATE DATABASE crawler;
 mysql> exit
 ```
 
-Una vez esté instalado, al ejecutar el script se creará la respectiva tabla de la base de datos y se guardarán las consultas en dicha base de datos. Si se quiere omitir comentar las llamadas a los métodos `guardar_elemento_bbdd(producto)` y `cursor, db = configurar_bbdd()` en las líneas 182 y 261 respectivamente.
+Una vez esté instalado, al ejecutar el script se creará la respectiva tabla de la base de datos y se guardarán las consultas en dicha base de datos. Si se quiere omitir comentar las llamadas a los métodos :
+
+`guardar_elemento_bbdd(producto)` y `cursor, db = configurar_bbdd()` 
+
+En las líneas 182 y 261 aproximadamente.
 
 Si se desea acceder a la base de datos se accederá con:
 <br>`$ mysql -u root -p`
-<br>La contraseña solicitada será __root__
+
+La contraseña solicitada será __root__
 
 # Salida entorno virtual
 
 `(venv) $ deactivate`
 
+# TO DO
+
+* Preguntar por terminal si quiere enviar por telegram mensajes, si no desactivar la creación del método
+* Dockerizar:
+  * Actualizar dockerfile
+  * Docker volumes para la bbdd
