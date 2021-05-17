@@ -4,23 +4,23 @@ which mysql > /dev/null
 
 if [ $? -eq 1 ];
 then
-	echo "\nDeterminando instalar MySQL o MariaDB..."
+	echo "\n[+] Determinando instalar MySQL o MariaDB..."
 	sudo apt-get install -y mysql-server > /dev/null 2>&1
 	if [ $? -eq 0 ];
 	then
-		echo "\nMySQL instalado correctamente"
+		echo "\n[+] MySQL instalado correctamente"
 	else
-		echo "\nMySql no se encuentra en los repositorios APT, probando con MariaDB"
+		echo "\n[+] MySql no se encuentra en los repositorios APT, probando con MariaDB"
 		sudo apt-get install -y mariadb-server > /dev/null 2>&1
 
 		if [ $? -eq 0 ];
 		then
-			echo "\nMariaDB instalado correctamente..."
+			echo "\n[+] MariaDB instalado correctamente..."
 		else
-			echo "\nError al instalar MariaDB..."
+			echo "\n[+] Error al instalar MariaDB..."
 		fi
 	fi
 	
 else
-	echo "\nMySQL ya instalado, omitiendo..."
+	echo "\n[+] MySQL ya instalado, omitiendo..."
 fi

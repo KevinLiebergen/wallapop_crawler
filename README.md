@@ -7,35 +7,47 @@ Crawler creado mediante la librería Selenium de python. Se han implementado fun
 - Los productos se guarden a una base de datos con sus respectivos campos.
 
 # Instalacion
-```
+
+```shell
 $ git clone https://github.com/KevinLiebergen/wallapop_crawler.git
 $ cd wallapop_crawler
 $ pip3 install virtualenv
 $ virtualenv venv
 ```
 
-Instalación Firefox driver, 2 opciones:
+Setup entorno:
 
 - Mediante script instalación
-<br>`$ sh gecko_installation.sh`
+```shell
+$ cd setup
+$ sh setup.sh
+````
 
-- A mano paso por paso
-```
+* Credenciales MySQL
+  * Usuario: 'walla_user' 
+  * Contraseña: 'walla_password'
+
+- Instalación Gecko driver paso por paso
+
+```shell
 $ wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz
 $ tar xvfz geckodriver-v0.24.0-linux64.tar.gz
 $ sudo mv geckodriver /usr/local/bin
 $ rm geckodriver-v0.24.0-linux64.tar.gz
 ```
 # Descarga librerías
-```
+
+```shell
 $ source venv/bin/activate
+
 (venv) $ pip3 install -r requirements.txt
 ```
 
 # Ejecución
 
 Únicamente ejecutar el script, por defecto viene configurado, antes de ejecutarlo leer detenidamente la sección de __configuración Telegram__ y __conexión base de datos__ para saber si comentar o no esa parte del código. 
-<br>`(venv) $ python3 walla_crawler.py`
+<br> `(venv) $ cd project`
+<br>`(venv) $ python3 main.py`
 
 Para ejecutar desde Docker (En desarrollo, hay fallos):
 
@@ -70,8 +82,9 @@ Este script implementa la opción de enviar los anuncios a un grupo privado de T
 
 <br>[Video resumen como crear tu bot y conocer tu token y chat id](https://www.youtube.com/watch?v=UhZtrhV7t3U)
 
-<br>Para deshabilitar esta opción únicamente es necesario comentar las llamadas a los métodos `configurar_telegram()
-` y `enviar_mensajes_a_telegram(producto["url"])` __cerca__ de las líneas 260 y 180 respectivamente.
+<br>Para deshabilitar esta opción únicamente es necesario comentar las llamadas a los métodos 
+`configurar_telegram()` y `enviar_mensajes_a_telegram(producto["url"])` __cerca__ del fichero `crawler.py` y la instanciación, 
+`telegram.Telegram()` del mismo fichero.
 
 # Conexión base de datos
 

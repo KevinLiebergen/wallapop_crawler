@@ -1,7 +1,11 @@
+import os
 
 class CSV:
     def __init__(self, busqueda):
         self.busqueda = busqueda
+
+        if not os.path.exists('../csvs/'):
+            os.makedirs('../csvs/')
 
         with open('../csvs/' + self.busqueda + '.csv', 'w') as f:
             f.write("Titulo, Precio, Barrio, Ciudad, Fecha publicacion, Puntuacion vendedor, Imagen, URL \n")

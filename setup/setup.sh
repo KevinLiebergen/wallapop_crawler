@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-echo "Actualizando repositorios..."
+echo "[+] Actualizando repositorios..."
 sudo apt-get update > /dev/null
 
 sh firefox_install.sh

@@ -13,7 +13,7 @@ def saludar():
     \ \((_)/ ((_)_| || ((_)_((_)_\ ((_|(_)_\   ((_|(_|(_)__(()((_) (_))  ((_) 
      \ \/\/ // _` | || / _` | '_ \) _ \ '_ \) / _| '_/ _` \ V  V / / -_)| '_| 
       \_/\_/ \__,_|_||_\__,_| .__/\___/ .__/  \__|_| \__,_|\_/\_/|_\___||_|   
-                            |_|       |_|                                     
+                            |_|       |_|      made with <3 by KevinLiebergen                 
           ''')
 
 
@@ -52,6 +52,8 @@ def main_cli():
             break
 
         elif precio_boolean == 'n':
+            precio_min = 0
+            precio_max = 20000
             break
 
     while True:
@@ -70,9 +72,10 @@ def main_cli():
             break
 
         elif limitar_boolean == 'n':
+            num_productos_limitar = 50
             break
 
-    run(busqueda, int(precio_min), int(precio_max), int(num_productos_limitar))
+    run(busqueda, precio_min, precio_max, int(num_productos_limitar))
 
 
 def main(argumentos):

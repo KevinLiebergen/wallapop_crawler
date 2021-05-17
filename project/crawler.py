@@ -54,7 +54,7 @@ class Crawler:
 
     def run(self, busqueda, prec_min, prec_max, num_max_productos, sleep_time=3600):
         fichero = csv.CSV(busqueda)
-        t = telegram.Telegram()
+        teleg_obj = telegram.Telegram()
 
         while True:
             new_urls = 0
@@ -77,7 +77,7 @@ class Crawler:
                 p = self.get_product("https://es.wallapop.com" + url)
 
                 self.visited.append(url)
-                self.save_product(fichero, p, t)
+                self.save_product(fichero, p, teleg_obj)
 
             # Aqui guardo en DB(array_urls)
             logging.info(" %d nuevos productos encontrados" % new_urls)
@@ -91,9 +91,9 @@ class Crawler:
         # return "abasdfas{PM}".format(PM=precio_maximo)
         result = "https://es.wallapop.com/search?keywords=%s" % busqueda
         if precio_minimo:
-            result += "&min_sale_price=%d" % precio_minimo
+            result += "&min_sale_price={}".format(precio_minimo)
         if precio_maximo:
-            result += "&max_sale_price=%d" % precio_maximo  # +"&latitude=40.4146500&longitude=-3.7004000
+            result += "&max_sale_price={}".format(precio_maximo)  # +"&latitude=40.4146500&longitude=-3.7004000
         return result
 
     def aceptar_cookies(self):
@@ -106,11 +106,18 @@ class Crawler:
     # wait explicito que espera a que salga el popup de las cookies para aceptarlo
         try:
             wait = WebDriverWait(self.driver, 20)
-            wait.until(ec.presence_of_element_located((By.CSS_SELECTOR, ".qc-cmp-button")))
+
+#            wait.until(ec.presence_of_element_located((By.CSS_SELECTOR, ".qc-cmp-button")))
+
+            #Updated v2.0
+            wait.until(ec.presence_of_element_located((By.ID, "didomi-notice-agree-button")))
             time.sleep(2)
 
             # Hace click en el boton aceptar cookies
-            self.driver.find_elements_by_css_selector('.qc-cmp-button')[1].click()
+            #self.driver.find_elements_by_css_selector('.qc-cmp-button')[1].click()
+
+            #Updated v2.0
+            self.driver.find_element_by_id("didomi-notice-agree-button").click()
 
         except TimeoutException:
             logging.error("No hay boton de aceptar cookies..\n")
