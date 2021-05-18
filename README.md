@@ -1,10 +1,25 @@
 # Wallapop crawler
 
+![](images_demo/principal.png )
+
+
 Crawler creado mediante la librería Selenium de python. Se han implementado funcionalidades para:
+
 - Que cada anuncio que se visita se envía la URL del producto a tu grupo propio de Telegram (Mirar en configuración de Telegram).
+
+![](images_demo/telegram.png)
+  
 - Anuncios crawleados se guardan en un csv.
 - Se muestra por terminal los productos.
+
+![](images_demo/terminal_results.png)
+
+
 - Que los productos se guarden a una base de datos con sus respectivos campos.
+
+
+
+
 
 # Instalación
 

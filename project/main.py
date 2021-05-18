@@ -76,7 +76,7 @@ def main_cli():
             break
 
     while(True):
-        print("¿Quieres enviar mensajes a un grupo de Telegram? [s/n]", end='')
+        print("¿Quieres enviar mensajes a un grupo de Telegram? [s/n]: ", end='')
         enviar_mensajes = input()
 
         if enviar_mensajes == 's':
