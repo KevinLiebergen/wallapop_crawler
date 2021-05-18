@@ -17,7 +17,7 @@ def saludar():
           ''')
 
 
-def run(nombre_producto, prec_min=0, prec_max=20000, num_max_productos=50):
+def run(nombre_producto, bool_teleg, prec_min=0, prec_max=20000, num_max_productos=50):
 
     # Segundos entre busquedas
     segundos_dormidos = 60  # 3600 seg = 1 hora
@@ -27,7 +27,7 @@ def run(nombre_producto, prec_min=0, prec_max=20000, num_max_productos=50):
     options.headless = False
     c = Crawler(options)
 
-    c.run(nombre_producto, prec_min, prec_max, num_max_productos, sleep_time=segundos_dormidos)
+    c.run(nombre_producto, bool_teleg, prec_min, prec_max, num_max_productos, sleep_time=segundos_dormidos)
 
 
 def main_cli():
@@ -75,7 +75,18 @@ def main_cli():
             num_productos_limitar = 50
             break
 
-    run(busqueda, precio_min, precio_max, int(num_productos_limitar))
+    while(True):
+        print("¿Quieres enviar mensajes a un grupo de Telegram? [s/n]", end='')
+        enviar_mensajes = input()
+
+        if enviar_mensajes == 's':
+            instancia_teleg = True
+            break
+        elif enviar_mensajes == 'n':
+            instancia_teleg = False
+            break
+
+    run(busqueda, instancia_teleg, precio_min, precio_max, int(num_productos_limitar))
 
 
 def main(argumentos):
@@ -84,8 +95,9 @@ def main(argumentos):
     precio_min = argumentos.min
     precio_max = argumentos.max
     productos_limitar = argumentos.limit
+    teleg = argumentos.teleg
 
-    run(busqueda, precio_min, precio_max, productos_limitar)
+    run(busqueda, teleg, precio_min, precio_max, productos_limitar)
 
 
 if __name__ == '__main__':
@@ -96,6 +108,7 @@ if __name__ == '__main__':
     parser.add_argument('--min', type=int, required=False, help="Define el precio minimo de la busqueda del producto")
     parser.add_argument('--max', type=int, required=False, help="Define el precio maximo de la busqueda del producto")
     parser.add_argument('--limit', type=int, required=False, help="Numero de productos que buscar por iteracion")
+    parser.add_argument('--teleg', required=False, help="Envío de mensajes por Telegram", default="s", choices=['s', 'n'])
 
     args = parser.parse_args()
 

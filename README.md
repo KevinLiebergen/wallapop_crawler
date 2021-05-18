@@ -41,6 +41,9 @@ $ rm geckodriver-v0.24.0-linux64.tar.gz
 
 ## Código
 
+
+### Sin parámetros
+
 Leer detenidamente la sección de __configuración Telegram__ y __conexión base de datos__ para saber si comentar o no esa parte del código. 
 
 ```shell
@@ -48,6 +51,30 @@ Leer detenidamente la sección de __configuración Telegram__ y __conexión base
 (venv) $ python3 main.py
 ```
 
+
+### Con parámetros
+
+```shell
+$ python3 main.py --help
+usage: main.py [-h] [--search SEARCH] [--min MIN] [--max MAX] [--limit LIMIT]
+               [--teleg {s,n}]
+
+Especifica opciones para el crawler
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --search SEARCH  Producto a buscar
+  --min MIN        Define el precio minimo de la busqueda del producto
+  --max MAX        Define el precio maximo de la busqueda del producto
+  --limit LIMIT    Numero de productos que buscar por iteracion
+  --teleg {s,n}    Envío de mensajes por Telegram
+```
+
+Ejemplo
+
+```shell
+$ python3 main.py --search bmw --min 10000 --max 10000 --limit 3 --teleg s
+```
 
 ## Docker
 
@@ -75,16 +102,17 @@ __No se puede hacer `$ docker-compose up` porque up no es interactivo, por eso h
 
 # Configuración Telegram
 
-Para deshabilitar esta opción únicamente es necesario comentar las llamadas a los métodos 
-`configurar_telegram()` y `enviar_mensajes_a_telegram(producto["url"])` __cerca__ del fichero `crawler.py` y la instanciación, 
-`telegram.Telegram()` del mismo fichero.
+Este script implementa la opción de enviar los anuncios a un grupo privado de Telegram, te pregunta por teclado si quieres implementar este módulo, en caso afirmativo, lee del archivo `outputs/api_telegram.json`.
 
-Este script implementa la opción de enviar los anuncios a un grupo privado de Telegram, para ello es necesario:
+
+
+Para ello es necesario:
+
 - Crear tu propio bot
     - Comienza una conversación con `@BotFather` y escribe `/newbot`. Especifica el nombre y el nickname
 - Crear un grupo y añadir el bot creado
-- Conocer el __token__ del bot creado (Botfather al crear tu bot te lo escribe por pantalla) y __dale valor a la variable token con el token de tu bot__ en el fichero api_telegram.json.
-- Conocer el __chat id__ del grupo creado y darle valor a la variable __ch_id__ en el fichero api_telegram.json.
+- Conocer el __token__ del bot creado (Botfather al crear tu bot te lo escribe por pantalla) y __dale valor a la variable token con el de tu bot__ en el fichero `api_telegram.json`.
+- Conocer el __chat id__ del grupo creado y darle valor a la variable __ch_id__ en el fichero `api_telegram.json`.
 
 <br>[Video resumen como crear tu bot y conocer tu token y chat id](https://www.youtube.com/watch?v=UhZtrhV7t3U)
 
@@ -130,7 +158,9 @@ La contraseña solicitada será __root__
 
 # TO DO
 
-* Preguntar por terminal si quiere enviar por telegram mensajes, si no desactivar la creación del método
 * Dockerizar:
   * Actualizar dockerfile
   * Docker volumes para la bbdd
+
+
+<a href="https://www.buymeacoffee.com/kevinliebergen" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
