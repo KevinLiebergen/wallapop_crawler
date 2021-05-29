@@ -91,6 +91,36 @@ Ejemplo
 $ python3 main.py --search bmw --min 10000 --max 10000 --limit 3 --teleg s
 ```
 
+## Docker
+
+* Instalar docker and docker-compose
+
+```bash
+# Docker
+$ sudo apt install docker.io
+# Docker-compose
+$ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+$ sudo chmod +x /usr/local/bin/docker-compose
+$ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+```
+
+- Construcción de la imagen:
+```bash
+$ docker build . -t walla_crawler
+```
+
+- Ejecución de la imagen en modo interactivo:
+  * Puentear fichero de configuración de Telegram (`-v`)
+
+* En caso de que no se quieran enviar mensajes a Telegram omitir:
+  * `-v $(pwd)/api_telegram.json:/crawler/project/outputs/api_telegram.json`
+
+```bash
+$ docker run --shm-size 2g -v $(pwd)/csvs:/crawler/csvs \
+-v $(pwd)/api_telegram.json:/crawler/project/outputs/api_telegram.json \
+-it walla_crawler
+```
+
 # Configuración Telegram
 
 Este script implementa la opción de enviar los anuncios a un grupo privado de Telegram, te pregunta por teclado si quieres implementar este módulo, en caso afirmativo, lee del archivo `outputs/api_telegram.json`.
@@ -150,35 +180,9 @@ La contraseña solicitada será __root__
 
 # TO DO
 
-## Docker
+* Args segundos entre búsquedas
 
-* Instalar docker and docker-compose
-
-```bash
-# Docker
-$ sudo apt install docker.io
-# Docker-compose
-$ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-$ sudo chmod +x /usr/local/bin/docker-compose
-$ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-```
-
-__En desarrollo__:
-
-- Construcción de la imagen:
-```bash
-$ docker build . -t walla_crawler
-```
-
-- Ejecución de la imagen en modo interactivo:
-  * Puentear fichero de configuración de Telegram (`-v`)
-
-```bash
-$ docker run --shm-size 2g -v $(pwd)/csvs:/crawler/csvs -it walla_crawler
-```
-
-
-- Docker-compose
+* Docker-compose
   * Puentear salida de base de datos (`-v`)
 
 
