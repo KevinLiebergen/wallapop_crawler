@@ -109,11 +109,9 @@ $ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 $ docker build . -t walla_crawler
 ```
 
-- Ejecución de la imagen en modo interactivo:
-  * Puentear fichero de configuración de Telegram (`-v`)
-
-* En caso de que no se quieran enviar mensajes a Telegram omitir:
-  * `-v $(pwd)/api_telegram.json:/crawler/project/outputs/api_telegram.json`
+* En caso de que no se quieran enviar mensajes a Telegram responder `n`cuando se pregunte durante la ejecución y omitir:
+  * `-v $(pwd)/api_telegram.json:/crawler/project/outputs/api_telegram.json` 
+  * El fichero `api_telegram.json` debe poseer la estructura que aparece en Configuración Telegram.
 
 ```bash
 $ docker run --shm-size 2g -v $(pwd)/csvs:/crawler/csvs \
@@ -134,6 +132,15 @@ Para ello es necesario:
 - Crear un grupo y añadir el bot creado
 - Conocer el __token__ del bot creado (Botfather al crear tu bot te lo escribe por pantalla) y __dale valor a la variable token con el de tu bot__ en el fichero `api_telegram.json`.
 - Conocer el __chat id__ del grupo creado y darle valor a la variable __ch_id__ en el fichero `api_telegram.json`.
+
+- La estructura del fichero debe tener esta forma, existe una plantilla en `project/outputs/api_telegram.json.template`
+
+```json
+{
+  "token": "000000000:XXXXxxxxxX-xXxxxxxX0xx0xx000XXxXxX",
+  "ch_id": "-000000000"
+}
+```
 
 <br>[Video resumen como crear tu bot y conocer tu token y chat id](https://www.youtube.com/watch?v=UhZtrhV7t3U)
 
