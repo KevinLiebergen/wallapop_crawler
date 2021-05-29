@@ -1,7 +1,5 @@
 version: '3.3'
-
 services:
-
   crawler:
     depends_on:
       - db

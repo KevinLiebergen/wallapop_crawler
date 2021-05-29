@@ -1,5 +1,6 @@
 import telebot
 import json
+import os
 
 
 def _saludar(file):
@@ -8,7 +9,8 @@ def _saludar(file):
 
 class Telegram:
     def __init__(self):
-        with open('outputs/api_telegram.json') as json_file:
+        fichero_telegram = os.path.dirname(os.path.abspath(__file__)) + '/api_telegram.json'
+        with open(fichero_telegram) as json_file:
             _saludar(json_file.name)
             data = json.load(json_file)
 

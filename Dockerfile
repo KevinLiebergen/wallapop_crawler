@@ -16,4 +16,4 @@ COPY . /crawler
 RUN cd setup && sh setup.sh
 
 
-ENTRYPOINT ["python3", "./walla_crawler.py"]
+ENTRYPOINT ["python3", "project/main.py"]

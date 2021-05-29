@@ -91,30 +91,6 @@ Ejemplo
 $ python3 main.py --search bmw --min 10000 --max 10000 --limit 3 --teleg s
 ```
 
-## Docker
-
-__En desarrollo__:
-
-- Para configurar el envío de mensajes a Telegram lee detenidamente la sección __configuración Telegram__, si no deseas el envío de mensajes comenta las llamadas a los métodos `configurarTelegram()` y `enviar_mensajes_a_telegram()`.
-- Activa la opción `options.headless = True` en la línea 274 
-- Construye y ejecuta la siguiente imagen en modo interactivo:
-```bash
-$ docker build . -t walla_crawler
-$ docker run -it walla_crawler
-```
-
-Para docker-compose (Falta mucho aun no funciona)
-
-__TAREA HACER CUANDO VUELVA VIAJE__
-leer https://robertoorayen.eu/2017/05/14/como-crear-un-sitio-web-con-docker/ para entender el puenteo entre puertos
-no va bien por los puertos, entender como crawler a la imagen mysql y este a maquina local
-
-```bash
-$ docker-compose build
-$ docker-compose run crawler
-```
-__No se puede hacer `$ docker-compose up` porque up no es interactivo, por eso hacemos run crawler__
-
 # Configuración Telegram
 
 Este script implementa la opción de enviar los anuncios a un grupo privado de Telegram, te pregunta por teclado si quieres implementar este módulo, en caso afirmativo, lee del archivo `outputs/api_telegram.json`.
@@ -171,11 +147,46 @@ La contraseña solicitada será __root__
 
 `(venv) $ deactivate`
 
+
 # TO DO
 
-* Dockerizar:
-  * Actualizar dockerfile
-  * Docker volumes para la bbdd
+## Docker
+
+* Instalar docker and docker-compose
+
+```bash
+# Docker
+$ sudo apt install docker.io
+# Docker-compose
+$ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+$ sudo chmod +x /usr/local/bin/docker-compose
+$ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+```
+
+__En desarrollo__:
+
+- Construcción de la imagen:
+```bash
+$ docker build . -t walla_crawler
+```
+
+- Ejecución de la imagen en modo interactivo:
+  * Puentear fichero de configuración de Telegram (`-v`)
+
+```bash
+$ docker run --shm-size 2g -v $(pwd)/csvs:/crawler/csvs -it walla_crawler
+```
+
+
+- Docker-compose
+  * Puentear salida de base de datos (`-v`)
+
+
+```bash
+$ docker-compose build
+$ docker-compose run crawler
+```
+__No se puede hacer `$ docker-compose up` porque up no es interactivo, por eso hacemos run crawler__
 
 
 <a href="https://www.buymeacoffee.com/kevinliebergen" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>

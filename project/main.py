@@ -1,3 +1,5 @@
+import os
+
 from selenium.webdriver.firefox.options import Options
 from crawler import Crawler
 import argparse
@@ -17,24 +19,21 @@ def saludar():
           ''')
 
 
-def run(nombre_producto, bool_teleg, prec_min=0, prec_max=20000, num_max_productos=50):
+def run(nombre_producto, bool_teleg, modo_headless, prec_min=0, prec_max=20000, num_max_productos=50):
 
-    # Segundos entre busquedas
+    # Segundos entre búsquedas
     segundos_dormidos = 60  # 3600 seg = 1 hora
 
-    # Modo headless
     options = Options()
-    options.headless = False
-    c = Crawler(options)
+    # Modo headless
+    options.headless = False if modo_headless == 'n' else True
 
-    c.run(nombre_producto, bool_teleg, prec_min, prec_max, num_max_productos, sleep_time=segundos_dormidos)
+    crawl = Crawler(options)
+
+    crawl.run(nombre_producto, bool_teleg, prec_min, prec_max, num_max_productos, sleep_time=segundos_dormidos)
 
 
 def main_cli():
-
-    precio_min = None
-    precio_max = None
-    num_productos_limitar = None
 
     print("Especifique que buscar: ", end='')
     busqueda = input()
@@ -75,7 +74,7 @@ def main_cli():
             num_productos_limitar = 50
             break
 
-    while(True):
+    while True:
         print("¿Quieres enviar mensajes a un grupo de Telegram? [s/n]: ", end='')
         enviar_mensajes = input()
 
@@ -86,7 +85,14 @@ def main_cli():
             instancia_teleg = False
             break
 
-    run(busqueda, instancia_teleg, precio_min, precio_max, int(num_productos_limitar))
+    while True:
+        print("¿Quieres poner headless mode? (Sin interfaz) [s/n]: ", end='')
+        modo_headless = input()
+
+        if modo_headless == 's' or modo_headless == 'n':
+            break
+
+    run(busqueda, instancia_teleg, modo_headless, precio_min, precio_max, int(num_productos_limitar))
 
 
 def main(argumentos):
@@ -108,7 +114,10 @@ if __name__ == '__main__':
     parser.add_argument('--min', type=int, required=False, help="Define el precio minimo de la busqueda del producto")
     parser.add_argument('--max', type=int, required=False, help="Define el precio maximo de la busqueda del producto")
     parser.add_argument('--limit', type=int, required=False, help="Numero de productos que buscar por iteracion")
-    parser.add_argument('--teleg', required=False, help="Envío de mensajes por Telegram", default="s", choices=['s', 'n'])
+    parser.add_argument('--teleg', required=False, help="Envío de mensajes por Telegram (Activado por defecto )",
+                        default="s", choices=['s', 'n'])
+    parser.add_argument('--headless', required=False, help="Modo headless (sin interfaz)", default="n",
+                        choices=['s', 'n'])
 
     args = parser.parse_args()
 

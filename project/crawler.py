@@ -3,6 +3,7 @@ from selenium.common.exceptions import ElementNotInteractableException
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support.ui import WebDriverWait
 from bs4 import BeautifulSoup
 import logging
@@ -16,7 +17,6 @@ from outputs.db import BaseDatos
 
 
 class Producto:
-    # def __init__(self, producto):
     def __init__(self, titulo, precio, descripcion, barrio, ciudad, fecha_publicacion,
                  puntuacion_vendedor, imagen, url):
 
@@ -109,14 +109,14 @@ class Crawler:
 
 #            wait.until(ec.presence_of_element_located((By.CSS_SELECTOR, ".qc-cmp-button")))
 
-            #Updated v2.0
+            # Updated v2.0
             wait.until(ec.presence_of_element_located((By.ID, "didomi-notice-agree-button")))
             time.sleep(2)
 
             # Hace click en el boton aceptar cookies
-            #self.driver.find_elements_by_css_selector('.qc-cmp-button')[1].click()
+            # self.driver.find_elements_by_css_selector('.qc-cmp-button')[1].click()
 
-            #Updated v2.0
+            # Updated v2.0
             self.driver.find_element_by_id("didomi-notice-agree-button").click()
 
         except TimeoutException:
