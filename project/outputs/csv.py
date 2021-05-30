@@ -7,8 +7,6 @@ class CSV:
         self.directorio_csv = os.path.dirname(os.path.abspath(__file__)) + '/../../csvs'
         self.fichero_csv = self.directorio_csv + '/' + self.busqueda + '.csv'
 
-        print(self.directorio_csv)
-
         if not os.path.exists(self.directorio_csv):
             os.makedirs(self.directorio_csv)
 

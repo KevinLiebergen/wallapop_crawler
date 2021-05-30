@@ -1,5 +1,3 @@
-import os
-
 from selenium.webdriver.firefox.options import Options
 from crawler import Crawler
 import argparse
@@ -19,10 +17,10 @@ def saludar():
           ''')
 
 
-def run(nombre_producto, bool_teleg, modo_headless, prec_min=0, prec_max=20000, num_max_productos=50):
+def run(nombre_producto, bool_teleg, modo_headless, seg_dormidos, prec_min=0, prec_max=20000, num_max_productos=50):
 
     # Segundos entre búsquedas
-    segundos_dormidos = 60  # 3600 seg = 1 hora
+    segundos_dormidos = seg_dormidos  # 3600 seg = 1 hora
 
     options = Options()
     # Modo headless
@@ -33,7 +31,7 @@ def run(nombre_producto, bool_teleg, modo_headless, prec_min=0, prec_max=20000, 
     crawl.run(nombre_producto, bool_teleg, prec_min, prec_max, num_max_productos, sleep_time=segundos_dormidos)
 
 
-def main_cli():
+def main_cli(segs_espera):
 
     print("Especifique que buscar: ", end='')
     busqueda = input()
@@ -92,7 +90,19 @@ def main_cli():
         if modo_headless == 's' or modo_headless == 'n':
             break
 
-    run(busqueda, instancia_teleg, modo_headless, precio_min, precio_max, int(num_productos_limitar))
+    while True:
+        print("¿Quieres configurar tiempo entre búsquedas? (Por defecto {} segundos) [s/n]: ".format(segs_espera),
+              end='')
+        config_tiempo = input()
+
+        if config_tiempo == 's':
+            print("Segundos entre búsquedas: ", end='')
+            segs_espera = int(input())
+            break
+        elif config_tiempo == 'n':
+            break
+
+    run(busqueda, instancia_teleg, modo_headless, segs_espera, precio_min, precio_max, int(num_productos_limitar))
 
 
 def main(argumentos):
@@ -102,11 +112,15 @@ def main(argumentos):
     precio_max = argumentos.max
     productos_limitar = argumentos.limit
     teleg = argumentos.teleg
+    modo_headless = argumentos.headless
+    segs_espera = argumentos.seg_espera
 
-    run(busqueda, teleg, precio_min, precio_max, productos_limitar)
+    run(busqueda, teleg, modo_headless, segs_espera, precio_min, precio_max, productos_limitar)
 
 
 if __name__ == '__main__':
+
+    seg_espera = 600
 
     parser = argparse.ArgumentParser(description='Especifica opciones para el crawler')
 
@@ -114,10 +128,12 @@ if __name__ == '__main__':
     parser.add_argument('--min', type=int, required=False, help="Define el precio minimo de la busqueda del producto")
     parser.add_argument('--max', type=int, required=False, help="Define el precio maximo de la busqueda del producto")
     parser.add_argument('--limit', type=int, required=False, help="Numero de productos que buscar por iteracion")
-    parser.add_argument('--teleg', required=False, help="Envío de mensajes por Telegram (Activado por defecto )",
+    parser.add_argument('--teleg', required=False, help="Envío de mensajes por Telegram (activado por defecto)",
                         default="s", choices=['s', 'n'])
     parser.add_argument('--headless', required=False, help="Modo headless (sin interfaz)", default="n",
                         choices=['s', 'n'])
+    parser.add_argument('--seg_espera', required=False, help="Segundos espera entre búsquedas (" + str(seg_espera) +
+                                                             " segundos  por defecto)", default=600, type=int)
 
     args = parser.parse_args()
 
@@ -128,4 +144,4 @@ if __name__ == '__main__':
         main(args)
     # Si existe variable de entorno CLI, pregunta al usuario
     else:
-        main_cli()
+        main_cli(seg_espera)

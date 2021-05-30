@@ -12,7 +12,7 @@ class InformacionPantalla:
         self.url = producto["url"]
 
     def imprimir_elementos(self):
-        print("###########################")
+        print("#"*50)
         print("Titulo: " + self.titulo)
         print("Precio: " + self.precio)
         print("Descripcion: " + self.descripcion)

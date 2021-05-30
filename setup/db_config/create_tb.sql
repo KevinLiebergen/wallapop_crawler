@@ -6,13 +6,13 @@ CREATE TABLE vendedor(
 	barrio INT,
 	ciudad VARCHAR(30),
 	puntuacion VARCHAR(4),
-	PRIMARY KEY ( id)
+	PRIMARY KEY (id)
 );
  
 CREATE TABLE busqueda(
 	id INT NOT NULL AUTO_INCREMENT,
 	busqueda VARCHAR(70),
-	PRIMARY KEY ( id)
+	PRIMARY KEY (id)
 );
 
 CREATE TABLE productos(
@@ -21,8 +21,8 @@ CREATE TABLE productos(
 	precio INT,
 	url VARCHAR(150),
 	imagen VARCHAR(150),
-	id_vendedor INT, 
-	id_busqueda INT,
+	id_vendedor INT NOT NULL AUTO_INCREMENT,
+	id_busqueda INT NOT NULL AUTO_INCREMENT,
 	PRIMARY KEY (id_producto),
 	FOREIGN KEY (id_vendedor) REFERENCES Vendedor(id),
 	FOREIGN KEY (id_busqueda) REFERENCES Busqueda(id)

@@ -3,7 +3,6 @@ from selenium.common.exceptions import ElementNotInteractableException
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support.ui import WebDriverWait
 from bs4 import BeautifulSoup
 import logging
@@ -19,7 +18,6 @@ from outputs.db import BaseDatos
 class Producto:
     def __init__(self, titulo, precio, descripcion, barrio, ciudad, fecha_publicacion,
                  puntuacion_vendedor, imagen, url):
-
         self.titulo = titulo
         self.precio = precio
         self.descripcion = descripcion
@@ -31,7 +29,8 @@ class Producto:
         self.url = url
 
     def __str__(self):
-        res = "Titulo: %s" % self.titulo
+        res = "#" * 60
+        res += "\nTitulo: %s" % self.titulo
         res += "\n" + "Precio: %s" % self.precio
         res += "\n" + "Descripcion: %s" % self.descripcion
         res += "\n" + "Barrio: %s" % self.barrio
@@ -40,7 +39,6 @@ class Producto:
         res += "\n" + "Puntuacion vendedor: %s" % self.puntuacion_vendedor
         res += "\n" + "Imagen: %s" % self.imagen
         res += "\n" + "URL: %s" % self.url
-        res += "\n" + "#"*32
         return res
 
 
@@ -52,7 +50,7 @@ class Crawler:
         self.unprocessed = []
         self.known = []
 
-    def run(self, busqueda, instancia_teleg, prec_min, prec_max, num_max_productos, sleep_time=3600):
+    def run(self, busqueda, instancia_teleg, prec_min, prec_max, num_max_productos, sleep_time):
         fichero = csv.CSV(busqueda)
         teleg_obj = telegram.Telegram() if instancia_teleg else None
 
@@ -70,20 +68,24 @@ class Crawler:
             self.known += urls
             self.unprocessed += urls
             for i in range(num_max_productos):
-                url = self.unprocessed.pop()
-                if not url:
+                try:
+                    url = self.unprocessed.pop()
+                except:
+                    print("#" * 60)
+                    print("No existen más productos, esperando...")
                     break
+
                 new_urls += 1
                 p = self.get_product("https://es.wallapop.com" + url)
 
                 self.visited.append(url)
                 self.save_product(fichero, p, teleg_obj)
 
-            # Aqui guardo en DB(array_urls)
+            # Guardo en DB(array_urls)
             logging.info(" %d nuevos productos encontrados" % new_urls)
 
             logging.info("Esperando %d segundos para volver a buscar" % sleep_time)
-            logging.info("#"*32)
+            logging.info("#" * 50)
 
             time.sleep(sleep_time)
 
@@ -103,17 +105,17 @@ class Crawler:
         #     });
         # ''')
 
-    # wait explicito que espera a que salga el popup de las cookies para aceptarlo
+        # wait explicito que espera a que salga el popup de las cookies para aceptarlo
         try:
             wait = WebDriverWait(self.driver, 20)
 
-#            wait.until(ec.presence_of_element_located((By.CSS_SELECTOR, ".qc-cmp-button")))
+            # wait.until(ec.presence_of_element_located((By.CSS_SELECTOR, ".qc-cmp-button")))
 
             # Updated v2.0
             wait.until(ec.presence_of_element_located((By.ID, "didomi-notice-agree-button")))
             time.sleep(2)
 
-            # Hace click en el boton aceptar cookies
+            # Hace click en el botón aceptar cookies
             # self.driver.find_elements_by_css_selector('.qc-cmp-button')[1].click()
 
             # Updated v2.0
@@ -126,9 +128,13 @@ class Crawler:
             logging.error("No interactuable...")
 
     def click_mas_productos(self):
-        if ec.presence_of_element_located((By.CSS_SELECTOR, ".Button")):
-            boton_mas_productos = self.driver.find_element_by_css_selector('.Button')
-            self.driver.execute_script("arguments[0].click();", boton_mas_productos)
+        # v1.0
+        # if ec.presence_of_element_located((By.CSS_SELECTOR, ".Button")):
+        #     boton_mas_productos = self.driver.find_element_by_css_selector('.Button')
+        #     self.driver.execute_script("arguments[0].click();", boton_mas_productos)
+
+        if ec.presence_of_element_located((By.ID, "more-products-btn")):
+            self.driver.find_element_by_id("more-products-btn").click()
 
     def scroll_hasta_final(self):
         scroll_pause_time = 1
@@ -182,7 +188,7 @@ class Crawler:
         url = product_link
 
         producto = Producto(titulo, precio, descripcion, barrio, ciudad,
-                            fecha_publicacion,  puntuacion, imagen_url, url)
+                            fecha_publicacion, puntuacion, imagen_url, url)
 
         return producto
 
@@ -191,6 +197,9 @@ class Crawler:
         fichero.escribir_a_csv(product)
 
         print(product.__str__())
+
+        # BaseDatos.guardar_elemento_bbdd()
+
         # TODO  GET_PRODUCT_INFO()
 
         # for pipeline in self.pipelines:
@@ -206,11 +215,6 @@ class Crawler:
     def cerrar_navegador(self):
         self.driver.close()
 
-
-# class Telegram(Pipeline):
-#     def save(self, product):
-#         tg.send(product)
-#
 # class DB(Pipeline):
 #     def save(self, product):
 #         "insert into product values %s" %(product)
