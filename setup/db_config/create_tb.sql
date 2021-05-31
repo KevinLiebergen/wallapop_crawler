@@ -1,4 +1,3 @@
-
 use wallapop_db;
 
 CREATE TABLE vendedor(
@@ -21,9 +20,9 @@ CREATE TABLE productos(
 	precio INT,
 	url VARCHAR(150),
 	imagen VARCHAR(150),
-	id_vendedor INT NOT NULL AUTO_INCREMENT,
-	id_busqueda INT NOT NULL AUTO_INCREMENT,
+	id_vendedor INT NOT NULL,
+	id_busqueda INT NOT NULL,
 	PRIMARY KEY (id_producto),
-	FOREIGN KEY (id_vendedor) REFERENCES Vendedor(id),
-	FOREIGN KEY (id_busqueda) REFERENCES Busqueda(id)
+	FOREIGN KEY (id_vendedor) REFERENCES vendedor(id),
+	FOREIGN KEY (id_busqueda) REFERENCES busqueda(id)
 );
