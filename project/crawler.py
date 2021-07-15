@@ -32,11 +32,11 @@ class Producto:
         res = "#" * 60
         res += "\nTitulo: %s" % self.titulo
         res += "\n" + "Precio: %s" % self.precio
-        res += "\n" + "Descripcion: %s" % self.descripcion
+        res += "\n" + "Descripción: %s" % self.descripcion
         res += "\n" + "Barrio: %s" % self.barrio
         res += "\n" + "Ciudad: %s" % self.ciudad
-        res += "\n" + "Fecha publicacion: %s" % self.fecha_publicacion
-        res += "\n" + "Puntuacion vendedor: %s" % self.puntuacion_vendedor
+        res += "\n" + "Fecha publicación: %s" % self.fecha_publicacion
+        res += "\n" + "Puntuación vendedor: %s" % self.puntuacion_vendedor
         res += "\n" + "Imagen: %s" % self.imagen
         res += "\n" + "URL: %s" % self.url
         return res
@@ -50,7 +50,7 @@ class Crawler:
         self.unprocessed = []
         self.known = []
 
-    def run(self, busqueda, instancia_teleg, prec_min, prec_max, num_max_productos, sleep_time):
+    def run(self, busqueda, instancia_teleg, prec_min, prec_max, num_max_productos, database, sleep_time):
         fichero = csv.CSV(busqueda)
         teleg_obj = telegram.Telegram() if instancia_teleg else None
 
@@ -79,7 +79,7 @@ class Crawler:
                 p = self.get_product("https://es.wallapop.com" + url)
 
                 self.visited.append(url)
-                self.save_product(fichero, p, teleg_obj)
+                self.save_product(fichero, p, teleg_obj, database)
 
             # Guardo en DB(array_urls)
             logging.info(" %d nuevos productos encontrados" % new_urls)
@@ -89,7 +89,8 @@ class Crawler:
 
             time.sleep(sleep_time)
 
-    def gen_url(self, busqueda, precio_minimo, precio_maximo):
+    @staticmethod
+    def gen_url(busqueda, precio_minimo, precio_maximo):
         # return "abasdfas{PM}".format(PM=precio_maximo)
         result = "https://es.wallapop.com/search?keywords=%s" % busqueda
         if precio_minimo:
@@ -192,21 +193,15 @@ class Crawler:
 
         return producto
 
-    def save_product(self, fichero, product, t):
+    @staticmethod
+    def save_product(fichero, product, t, datab):
         t.enviar_mensajes_a_telegram(product.url) if t else None
         fichero.escribir_a_csv(product)
 
         print(product.__str__())
 
-        # BaseDatos.guardar_elemento_bbdd()
-
-        # TODO  GET_PRODUCT_INFO()
-
-        # for pipeline in self.pipelines:
-        #     pipeline.save(product)
-        # # telegram.enviar_mensajes_a_telegram(producto["url"])
-        # # enviar a bd??
-        # pass
+        if datab == 's':
+            BaseDatos.guardar_elemento_bbdd()
 
     def get_product_info(self, product_link):
         p = self.get_product("https://es.wallapop.com" + product_link)
