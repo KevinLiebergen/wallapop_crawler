@@ -45,8 +45,8 @@ class Producto:
 class Crawler:
 
     def __init__(self, options):
-        # self.driver = webdriver.Firefox(options=options)
-        self.driver = webdriver.Chrome(chrome_options=options)
+        self.driver = webdriver.Firefox(options=options)
+        # self.driver = webdriver.Chrome(chrome_options=options)
         self.visited = []
         self.unprocessed = []
         self.known = []

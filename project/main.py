@@ -1,6 +1,7 @@
-# from selenium.webdriver.firefox.options import Options
 
-from selenium.webdriver.chrome.options import Options
+
+from selenium.webdriver.firefox.options import Options
+# from selenium.webdriver.chrome.options import Options
 
 from crawler import Crawler
 import argparse
