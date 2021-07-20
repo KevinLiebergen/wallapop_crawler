@@ -52,6 +52,69 @@ $ sudo mv geckodriver /usr/local/bin
 $ rm geckodriver-v0.24.0-linux64.tar.gz
 ```
 
+# Configuración Telegram (no obligatorio)
+
+Si no desea configurar Telegram, pasar al siguiente punto y no especificar esa opción cuando 
+se ejecute (mirar en ejecución).
+
+Este script implementa la opción de enviar los anuncios a un grupo privado de Telegram, te pregunta por teclado si quieres implementar este módulo, en caso afirmativo, lee del archivo `outputs/api_telegram.json`.
+
+
+
+Para ello es necesario:
+
+- Crear tu propio bot
+    - Comienza una conversación con `@BotFather` y escribe `/newbot`. Especifica el nombre y el nickname
+- Crear un grupo y añadir el bot creado
+- Conocer el __token__ del bot creado (Botfather al crear tu bot te lo escribe por pantalla) y __dale valor a la variable token con el de tu bot__ en el fichero `api_telegram.json`.
+- Conocer el __chat id__ del grupo creado y darle valor a la variable __ch_id__ en el fichero `project/outputs/api_telegram.json`.
+
+- La estructura del fichero debe tener esta forma, existe una plantilla en `project/outputs/api_telegram.json.template`
+
+```json
+{
+  "token": "000000000:XXXXxxxxxX-xXxxxxxX0xx0xx000XXxXxX",
+  "ch_id": "-000000000"
+}
+```
+
+<br>[Video resumen como crear tu bot y conocer tu token y chat id](https://www.youtube.com/watch?v=UhZtrhV7t3U)
+
+# Conexión base de datos (no obligatorio)
+
+Si no desea configurar el guardado en la base de datos, 
+pasar al siguiente punto y no especificar esa opción cuando 
+se ejecute (mirar en ejecución).
+
+__Por defecto__, la instalación `setup.sh` realiza todo lo necesario para configurar la base de datos. Si ha ejecutado `setup.sh` correctamente no es necesario continuar con lo siguiente.
+
+Se ha implementado una opción para conectar los productos crawleados a una base de datos.
+
+### Instalación base de datos mysql
+
+```bash
+$ sudo apt update
+$ sudo apt install mysql-server
+$ sudo mysql_secure_installation
+```
+
+### Configuración base de datos
+
+Configuro una contraseña para acceder a la base de datos, creo la base de datos `crawler`.
+
+`$ sudo mysql`
+```mysql
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
+mysql> CREATE DATABASE crawler;
+mysql> exit
+```
+
+Una vez esté instalado, al ejecutar el script se creará la respectiva tabla de la base de datos y se guardarán las consultas en dicha base de datos.
+Si se desea acceder a la base de datos se accederá con:
+<br>`$ mysql -u root -p`
+
+La contraseña solicitada será __root__
+
 # Ejecución
 
 ## Código
@@ -72,17 +135,23 @@ Leer detenidamente la sección de __configuración Telegram__ y __conexión base
 ```shell
 $ python3 main.py --help
 usage: main.py [-h] [--search SEARCH] [--min MIN] [--max MAX] [--limit LIMIT]
-               [--teleg {s,n}]
+               [--teleg {s,n}] [--headless {s,n}] [--db {s,n}]
+               [--segs_espera SEGS_ESPERA]
 
 Especifica opciones para el crawler
 
 optional arguments:
-  -h, --help       show this help message and exit
-  --search SEARCH  Producto a buscar
-  --min MIN        Define el precio minimo de la busqueda del producto
-  --max MAX        Define el precio maximo de la busqueda del producto
-  --limit LIMIT    Numero de productos que buscar por iteracion
-  --teleg {s,n}    Envío de mensajes por Telegram
+  -h, --help            show this help message and exit
+  --search SEARCH       Producto a buscar
+  --min MIN             Define el precio mínimo de la búsqueda del producto
+  --max MAX             Define el precio máximo de la búsqueda del producto
+  --limit LIMIT         Numero de productos que buscar por iteración
+  --teleg {s,n}         Envío de mensajes por Telegram (activado por defecto)
+  --headless {s,n}      Modo headless (sin interfaz)
+  --db {s,n}            Conexión a base de datos[s/n]
+  --segs_espera SEGS_ESPERA
+                        Segundos espera entre búsquedas (600 segundos por
+                        defecto)
 ```
 
 Ejemplo
@@ -119,66 +188,7 @@ $ docker run --shm-size 2g -v $(pwd)/csvs:/crawler/csvs \
 -it walla_crawler
 ```
 
-# Configuración Telegram
 
-Este script implementa la opción de enviar los anuncios a un grupo privado de Telegram, te pregunta por teclado si quieres implementar este módulo, en caso afirmativo, lee del archivo `outputs/api_telegram.json`.
-
-
-
-Para ello es necesario:
-
-- Crear tu propio bot
-    - Comienza una conversación con `@BotFather` y escribe `/newbot`. Especifica el nombre y el nickname
-- Crear un grupo y añadir el bot creado
-- Conocer el __token__ del bot creado (Botfather al crear tu bot te lo escribe por pantalla) y __dale valor a la variable token con el de tu bot__ en el fichero `api_telegram.json`.
-- Conocer el __chat id__ del grupo creado y darle valor a la variable __ch_id__ en el fichero `api_telegram.json`.
-
-- La estructura del fichero debe tener esta forma, existe una plantilla en `project/outputs/api_telegram.json.template`
-
-```json
-{
-  "token": "000000000:XXXXxxxxxX-xXxxxxxX0xx0xx000XXxXxX",
-  "ch_id": "-000000000"
-}
-```
-
-<br>[Video resumen como crear tu bot y conocer tu token y chat id](https://www.youtube.com/watch?v=UhZtrhV7t3U)
-
-# Conexión base de datos
-
-__Por defecto,__ la instalación `setup.sh` realiza todo lo necesario para configurar la base de datos. Si ha ejecutado `setup.sh` correctamente no es necesario continuar con lo siguiente.
-
-Se ha implementado una opción para conectar los productos crawleados a una base de datos.
-
-### Instalación base de datos mysql
-
-```bash
-$ sudo apt update
-$ sudo apt install mysql-server
-$ sudo mysql_secure_installation
-```
-
-### Configuración base de datos
-
-Configuro una contraseña para acceder a la base de datos, creo la base de datos `crawler`.
-
-`$ sudo mysql`
-```mysql
-mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
-mysql> CREATE DATABASE crawler;
-mysql> exit
-```
-
-Una vez esté instalado, al ejecutar el script se creará la respectiva tabla de la base de datos y se guardarán las consultas en dicha base de datos. Si se quiere omitir comentar las llamadas a los métodos :
-
-`guardar_elemento_bbdd(producto)` y `cursor, db = configurar_bbdd()` 
-
-En las líneas 182 y 261 aproximadamente.
-
-Si se desea acceder a la base de datos se accederá con:
-<br>`$ mysql -u root -p`
-
-La contraseña solicitada será __root__
 
 # Salida entorno virtual
 
