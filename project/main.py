@@ -1,4 +1,7 @@
-from selenium.webdriver.firefox.options import Options
+# from selenium.webdriver.firefox.options import Options
+
+from selenium.webdriver.chrome.options import Options
+
 from crawler import Crawler
 import argparse
 
@@ -19,7 +22,7 @@ def saludar():
 
 def run(nombre_producto, bool_teleg, modo_headless, seg_dormidos, db, prec_min=0, prec_max=20000, num_max_productos=50):
 
-    # Segundos entre búsquedas
+    # Segundos entre búsquedasgg
     segundos_dormidos = seg_dormidos  # 3600 seg = 1 hora
 
     options = Options()
