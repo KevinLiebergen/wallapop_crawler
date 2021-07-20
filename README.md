@@ -80,47 +80,12 @@ Para ello es necesario:
 
 <br>[Video resumen como crear tu bot y conocer tu token y chat id](https://www.youtube.com/watch?v=UhZtrhV7t3U)
 
-# Conexión base de datos (no obligatorio)
-
-Si no desea configurar el guardado en la base de datos, 
-pasar al siguiente punto y no especificar esa opción cuando 
-se ejecute (mirar en ejecución).
-
-__Por defecto__, la instalación `setup.sh` realiza todo lo necesario para configurar la base de datos. Si ha ejecutado `setup.sh` correctamente no es necesario continuar con lo siguiente.
-
-Se ha implementado una opción para conectar los productos crawleados a una base de datos.
-
-### Instalación base de datos mysql
-
-```bash
-$ sudo apt update
-$ sudo apt install mysql-server
-$ sudo mysql_secure_installation
-```
-
-### Configuración base de datos
-
-Configuro una contraseña para acceder a la base de datos, creo la base de datos `crawler`.
-
-`$ sudo mysql`
-```mysql
-mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
-mysql> CREATE DATABASE crawler;
-mysql> exit
-```
-
-Una vez esté instalado, al ejecutar el script se creará la respectiva tabla de la base de datos y se guardarán las consultas en dicha base de datos.
-Si se desea acceder a la base de datos se accederá con:
-<br>`$ mysql -u root -p`
-
-La contraseña solicitada será __root__
-
 # Ejecución
 
 ## Código
 
 
-### Sin parámetros
+### - Sin parámetros
 
 Leer detenidamente la sección de __configuración Telegram__ y __conexión base de datos__ para saber si comentar o no esa parte del código. 
 
@@ -129,8 +94,7 @@ Leer detenidamente la sección de __configuración Telegram__ y __conexión base
 (venv) $ python3 main.py
 ```
 
-
-### Con parámetros
+### - Con parámetros
 
 ```shell
 $ python3 main.py --help
@@ -197,9 +161,43 @@ $ docker run --shm-size 2g -v $(pwd)/csvs:/crawler/csvs \
 
 # TO DO
 
-* Args segundos entre búsquedas
+## Conexión base de datos (no obligatorio)
 
-* Docker-compose
+Si no desea configurar el guardado en la base de datos, 
+pasar al siguiente punto y no especificar esa opción cuando 
+se ejecute (mirar en ejecución).
+
+__Por defecto__, la instalación `setup.sh` realiza todo lo necesario para configurar la base de datos. Si ha ejecutado `setup.sh` correctamente no es necesario continuar con lo siguiente.
+
+Se ha implementado una opción para conectar los productos crawleados a una base de datos.
+
+### Instalación base de datos mysql
+
+```bash
+$ sudo apt update
+$ sudo apt install mysql-server
+$ sudo mysql_secure_installation
+```
+
+### Configuración base de datos
+
+Configuro una contraseña para acceder a la base de datos, creo la base de datos `crawler`.
+
+`$ sudo mysql`
+```mysql
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
+mysql> CREATE DATABASE crawler;
+mysql> exit
+```
+
+Una vez esté instalado, al ejecutar el script se creará la respectiva tabla de la base de datos y se guardarán las consultas en dicha base de datos.
+Si se desea acceder a la base de datos se accederá con:
+<br>`$ mysql -u root -p`
+
+La contraseña solicitada será __root__
+
+
+## Docker-compose
   * Puentear salida de base de datos (`-v`)
 
 
