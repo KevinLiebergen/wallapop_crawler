@@ -51,7 +51,7 @@ class Crawler:
         self.unprocessed = []
         self.known = []
 
-    def run(self, busqueda, instancia_teleg, prec_min, prec_max, num_max_productos, database, sleep_time):
+    def run(self, busqueda, instancia_teleg, prec_min, prec_max, database, sleep_time):
         fichero = csv.CSV(busqueda)
         teleg_obj = telegram.Telegram() if instancia_teleg else None
 
@@ -68,7 +68,8 @@ class Crawler:
             urls = self.get_product_urls()
             self.known += urls
             self.unprocessed += urls
-            for i in range(num_max_productos):
+
+            for i in range(self.unprocessed):
                 try:
                     url = self.unprocessed.pop()
                 except:
@@ -196,7 +197,7 @@ class Crawler:
 
     @staticmethod
     def save_product(fichero, product, t, datab):
-        t.enviar_mensajes_a_telegram(product.url) if t else None
+        t.enviar_mensajes_a_telegram(product.url, product.precio) if t else None
         fichero.escribir_a_csv(product)
 
         print(product.__str__())

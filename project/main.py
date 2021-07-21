@@ -21,7 +21,7 @@ def saludar():
           ''')
 
 
-def run(nombre_producto, bool_teleg, modo_headless, seg_dormidos, db, prec_min=0, prec_max=20000, num_max_productos=50):
+def run(nombre_producto, bool_teleg, modo_headless, seg_dormidos, db, prec_min=0, prec_max=20000):
 
     # Segundos entre búsquedasgg
     segundos_dormidos = seg_dormidos  # 3600 seg = 1 hora
@@ -32,7 +32,7 @@ def run(nombre_producto, bool_teleg, modo_headless, seg_dormidos, db, prec_min=0
 
     crawl = Crawler(options)
 
-    crawl.run(nombre_producto, bool_teleg, prec_min, prec_max, num_max_productos, db, sleep_time=segundos_dormidos)
+    crawl.run(nombre_producto, bool_teleg, prec_min, prec_max, db, sleep_time=segundos_dormidos)
 
 
 def main_cli():
@@ -58,25 +58,6 @@ def main_cli():
         elif precio_boolean == 'n':
             precio_min = 0
             precio_max = 20000
-            break
-
-    while True:
-        print("¿Limitar el número de productos? [s/n]: ", end='')
-        limitar_boolean = input()
-
-        if limitar_boolean == 's':
-            num_productos_limitar = 0
-            while not (num_productos_limitar > 0):
-                print("Numero de productos a limitar [> 0]: ", end='')
-                try:
-                    num_productos_limitar = int(input())
-                    break
-                except ValueError:
-                    num_productos_limitar = 0
-            break
-
-        elif limitar_boolean == 'n':
-            num_productos_limitar = 50
             break
 
     while True:
@@ -125,13 +106,12 @@ def main(argumentos):
     busqueda = f'{argumentos.search}'
     precio_min = argumentos.min
     precio_max = argumentos.max
-    productos_limitar = argumentos.limit
     teleg = argumentos.teleg
     modo_headless = argumentos.headless
     segs_espera = argumentos.segs_espera
     database = argumentos.db
 
-    run(busqueda, teleg, modo_headless, segs_espera, database, precio_min, precio_max, productos_limitar)
+    run(busqueda, teleg, modo_headless, segs_espera, database, precio_min, precio_max)
 
 
 if __name__ == '__main__':
@@ -144,7 +124,6 @@ if __name__ == '__main__':
     parser.add_argument('--search', required=False, help="Producto a buscar")
     parser.add_argument('--min', type=int, required=False, help="Define el precio mínimo de la búsqueda del producto")
     parser.add_argument('--max', type=int, required=False, help="Define el precio máximo de la búsqueda del producto")
-    parser.add_argument('--limit', type=int, required=False, help="Numero de productos que buscar por iteración")
     parser.add_argument('--teleg', required=False, help="Envío de mensajes por Telegram (activado por defecto)",
                         default="s", choices=['s', 'n'])
     parser.add_argument('--headless', required=False, help="Modo headless (sin interfaz)", default="n",
