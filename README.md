@@ -151,6 +151,11 @@ $ docker run --shm-size 2g -v $(pwd)/csvs:/crawler/csvs \
 -it walla_crawler
 ```
 
+`$ crontab -e`
+
+```
+*/10 * * * * /home/kevin/github/wallapop_crawler/venv/bin/python3 /home/kevin/github/wallapop_crawler/project/main.py --search "bmw serie 1 120i" --min 1000 --max 4500 --teleg s --db n --headless s  >> /home/kevin/github/wallapop_crawler/cron.txt 2>&1
+```
 
 
 # Salida entorno virtual

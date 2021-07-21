@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from bs4 import BeautifulSoup
 import logging
+import datetime
 import re
 import time
 import sys
@@ -95,8 +96,10 @@ class Crawler:
         print("[-] %d nuevos productos encontrados" % new_urls)
 
         # print("[-] Esperando %d segundos para volver a buscar" % sleep_time)
-        print("#" * 50)
+        now = datetime.datetime.now()
+        print("{}".format(now.strftime("%d/%m/%Y, %H:%M:%S")))
         # time.sleep(sleep_time)
+        print("#" * 50)
         self.driver.quit()
 
     def load_products_from_file(self, fichero):
