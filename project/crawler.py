@@ -97,6 +97,7 @@ class Crawler:
         # print("[-] Esperando %d segundos para volver a buscar" % sleep_time)
         print("#" * 50)
         # time.sleep(sleep_time)
+        self.driver.quit()
 
     def load_products_from_file(self, fichero):
         with open(fichero.fichero_csv) as file:
