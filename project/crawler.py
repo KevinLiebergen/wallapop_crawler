@@ -92,10 +92,10 @@ class Crawler:
             self.save_product(fichero, p, teleg_obj, database)
 
         # Guardo en DB(array_urls)
-        # print("[-] %d nuevos productos encontrados" % new_urls)
+        print("[-] %d nuevos productos encontrados" % new_urls)
 
         # print("[-] Esperando %d segundos para volver a buscar" % sleep_time)
-        # print("#" * 50)
+        print("#" * 50)
 
         # time.sleep(sleep_time)
 
