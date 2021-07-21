@@ -62,43 +62,42 @@ class Crawler:
 
         if not fichero.fichero_nuevo:
             self.known = self.load_products_from_file(fichero)
-            # self.known = self.products_in_csv
 
-        while True:
-            new_urls = 0
+        # while True:
+        new_urls = 0
 
-            url = self.gen_url(busqueda, prec_min, prec_max)
-            self.driver.get(url)
-            self.aceptar_cookies()
-            self.click_mas_productos()
-            self.scroll_hasta_final()
+        url = self.gen_url(busqueda, prec_min, prec_max)
+        self.driver.get(url)
+        self.aceptar_cookies()
+        self.click_mas_productos()
+        self.scroll_hasta_final()
 
-            # Devuelve todas las urls de la página que no estén en known (que no ha mirado ya)
-            urls = self.get_product_urls()
-            self.known += urls
-            self.unprocessed += urls
+        # Devuelve todas las urls de la página que no estén en known (que no ha mirado ya)
+        urls = self.get_product_urls()
+        self.known += urls
+        self.unprocessed += urls
 
-            for i in range(len(self.unprocessed)):
-                try:
-                    url = self.unprocessed.pop()
-                except:
-                    print("#" * 60)
-                    print("No existen más productos, esperando...")
-                    break
+        for i in range(len(self.unprocessed)):
+            try:
+                url = self.unprocessed.pop()
+            except:
+                print("#" * 60)
+                print("No existen más productos, esperando...")
+                break
 
-                new_urls += 1
-                p = self.get_product("https://es.wallapop.com" + url)
+            new_urls += 1
+            p = self.get_product("https://es.wallapop.com" + url)
 
-                self.visited.append(url)
-                self.save_product(fichero, p, teleg_obj, database)
+            self.visited.append(url)
+            self.save_product(fichero, p, teleg_obj, database)
 
-            # Guardo en DB(array_urls)
-            print("[-] %d nuevos productos encontrados" % new_urls)
+        # Guardo en DB(array_urls)
+        # print("[-] %d nuevos productos encontrados" % new_urls)
 
-            print("[-] Esperando %d segundos para volver a buscar" % sleep_time)
-            print("#" * 50)
+        # print("[-] Esperando %d segundos para volver a buscar" % sleep_time)
+        # print("#" * 50)
 
-            time.sleep(sleep_time)
+        # time.sleep(sleep_time)
 
     def load_products_from_file(self, fichero):
         with open(fichero.fichero_csv) as file:
