@@ -21,10 +21,7 @@ def saludar():
           ''')
 
 
-def run(nombre_producto, bool_teleg, modo_headless, seg_dormidos, db, prec_min=0, prec_max=20000):
-
-    # Segundos entre búsquedasgg
-    segundos_dormidos = seg_dormidos  # 3600 seg = 1 hora
+def run(nombre_producto, bool_teleg, modo_headless, db, prec_min=0, prec_max=20000):
 
     options = Options()
     # Modo headless
@@ -32,12 +29,11 @@ def run(nombre_producto, bool_teleg, modo_headless, seg_dormidos, db, prec_min=0
 
     crawl = Crawler(options)
 
-    crawl.run(nombre_producto, bool_teleg, prec_min, prec_max, db, sleep_time=segundos_dormidos)
+    crawl.run(nombre_producto, bool_teleg, prec_min, prec_max, db)
 
 
 def main_cli():
 
-    global segs_espera
     global def_db
 
     print("Especifique que buscar: ", end='')
@@ -79,17 +75,6 @@ def main_cli():
             break
 
     while True:
-        print("¿Quieres configurar tiempo entre búsquedas? (Por defecto %s segundos) [s/n]: " % segs_espera, end='')
-        config_tiempo = input()
-
-        if config_tiempo == 's':
-            print("Segundos entre búsquedas: ", end='')
-            segs_espera = int(input())
-            break
-        elif config_tiempo == 'n':
-            break
-
-    while True:
         print("¿Quieres guardar productos en la base de datos? (Por defecto {}) [s/n]: ".format(def_db),
               end='')
         database = input()
@@ -97,8 +82,7 @@ def main_cli():
         if database == 's' or database == 'n':
             break
 
-    run(busqueda, instancia_teleg, modo_headless, segs_espera, database,
-        precio_min, precio_max, int(num_productos_limitar))
+    run(busqueda, instancia_teleg, modo_headless, database, precio_min, precio_max)
 
 
 def main(argumentos):
@@ -108,15 +92,13 @@ def main(argumentos):
     precio_max = argumentos.max
     teleg = argumentos.teleg
     modo_headless = argumentos.headless
-    segs_espera = argumentos.segs_espera
     database = argumentos.db
 
-    run(busqueda, teleg, modo_headless, segs_espera, database, precio_min, precio_max)
+    run(busqueda, teleg, modo_headless, database, precio_min, precio_max)
 
 
 if __name__ == '__main__':
 
-    segs_espera = 600
     def_db = 'n'
 
     parser = argparse.ArgumentParser(description='Especifica opciones para el crawler')
@@ -130,9 +112,6 @@ if __name__ == '__main__':
                         choices=['s', 'n'])
     parser.add_argument('--db', required=False, help="Conexión a base de datos[s/n]",
                         default=def_db, choices=['s', 'n'])
-
-    parser.add_argument('--segs_espera', required=False, help="Segundos espera entre búsquedas (" + str(segs_espera) +
-                                                              " segundos  por defecto)", default=segs_espera, type=int)
 
     args = parser.parse_args()
 

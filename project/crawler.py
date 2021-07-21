@@ -55,7 +55,7 @@ class Crawler:
 
         logging.basicConfig(level=20)
 
-    def run(self, busqueda, instancia_teleg, prec_min, prec_max, database, sleep_time):
+    def run(self, busqueda, instancia_teleg, prec_min, prec_max, database):
         teleg_obj = telegram.Telegram() if instancia_teleg else None
 
         fichero = save_csv.CSV(busqueda)
