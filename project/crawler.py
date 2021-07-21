@@ -96,7 +96,6 @@ class Crawler:
 
         # print("[-] Esperando %d segundos para volver a buscar" % sleep_time)
         print("#" * 50)
-
         # time.sleep(sleep_time)
 
     def load_products_from_file(self, fichero):
@@ -156,8 +155,12 @@ class Crawler:
         #     boton_mas_productos = self.driver.find_element_by_css_selector('.Button')
         #     self.driver.execute_script("arguments[0].click();", boton_mas_productos)
 
-        if ec.presence_of_element_located((By.ID, "more-products-btn")):
-            self.driver.find_element_by_id("more-products-btn").click()
+        time.sleep(1)
+        try:
+            if ec.presence_of_element_located((By.ID, "more-products-btn")):
+                self.driver.find_element_by_id("more-products-btn").click()
+        except:
+            print("[-] No se ha encontrado el botón de más productos")
 
     def scroll_hasta_final(self):
         scroll_pause_time = 2
@@ -166,7 +169,7 @@ class Crawler:
             # Consigue la altura del scroll
             last_height = self.driver.execute_script("return document.body.scrollHeight")
 
-        except ElementNotInteractableException:
+        except:
             logging.error("No se puede hacer scroll down\n")
             self.driver.close()
             sys.exit(1)
