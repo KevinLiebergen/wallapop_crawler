@@ -142,6 +142,7 @@ class Crawler:
 
             # Updated v2.0
             self.driver.find_element_by_id("didomi-notice-agree-button").click()
+            print("[-] Cookies aceptadas")
 
         except TimeoutException:
             logging.error("No hay boton de aceptar cookies..\n")
@@ -184,6 +185,7 @@ class Crawler:
             last_height = new_height
 
     def get_product_urls(self):
+        print("[-] Recolectando URLs de anuncios")
         res = set()
         soup = BeautifulSoup(self.driver.page_source, 'html.parser')
         for link in soup.find_all('a', href=re.compile('/item')):
@@ -218,6 +220,7 @@ class Crawler:
 
     @staticmethod
     def save_product(fichero, product, t, datab):
+        print("[-] Guardando producto {}".format(product.url))
         t.enviar_mensajes_a_telegram(product.url, product.precio) if t else None
         fichero.escribir_a_csv(product)
 
