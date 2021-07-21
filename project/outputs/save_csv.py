@@ -6,13 +6,16 @@ class CSV:
         self.busqueda = busqueda
         self.directorio_csv = os.path.dirname(os.path.abspath(__file__)) + '/../../csvs'
         self.fichero_csv = self.directorio_csv + '/' + self.busqueda + '.csv'
+        self.fichero_nuevo = False
 
         if not os.path.exists(self.directorio_csv):
             os.makedirs(self.directorio_csv)
 
-        with open(self.fichero_csv, 'w') as f:
-            f.write("Titulo, Precio, Barrio, Ciudad, Fecha publicacion, Puntuacion vendedor, Imagen, URL \n")
-            f.close()
+        if not os.path.isfile(self.fichero_csv):
+            with open(self.fichero_csv, 'w') as f:
+                f.write("Titulo, Precio, Barrio, Ciudad, Fecha publicacion, Puntuacion vendedor, Imagen, URL \n")
+                f.close()
+            self.fichero_nuevo = False
 
     def escribir_a_csv(self, producto):
         with open(self.fichero_csv, 'a') as f:

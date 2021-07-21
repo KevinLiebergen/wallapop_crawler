@@ -9,9 +9,10 @@ import logging
 import re
 import time
 import sys
+import csv
 
 from outputs import telegram
-from outputs import csv
+from outputs import save_csv
 from outputs.db import BaseDatos
 
 
@@ -50,10 +51,18 @@ class Crawler:
         self.visited = []
         self.unprocessed = []
         self.known = []
+        self.products_in_csv = []
+
+        logging.basicConfig(level=20)
 
     def run(self, busqueda, instancia_teleg, prec_min, prec_max, database, sleep_time):
-        fichero = csv.CSV(busqueda)
         teleg_obj = telegram.Telegram() if instancia_teleg else None
+
+        fichero = save_csv.CSV(busqueda)
+
+        if not fichero.fichero_nuevo:
+            self.known = self.load_products_from_file(fichero)
+            # self.known = self.products_in_csv
 
         while True:
             new_urls = 0
@@ -64,12 +73,12 @@ class Crawler:
             self.click_mas_productos()
             self.scroll_hasta_final()
 
-            # Devuelve todas las urls de la página que no estén en known
+            # Devuelve todas las urls de la página que no estén en known (que no ha mirado ya)
             urls = self.get_product_urls()
             self.known += urls
             self.unprocessed += urls
 
-            for i in range(self.unprocessed):
+            for i in range(len(self.unprocessed)):
                 try:
                     url = self.unprocessed.pop()
                 except:
@@ -84,12 +93,23 @@ class Crawler:
                 self.save_product(fichero, p, teleg_obj, database)
 
             # Guardo en DB(array_urls)
-            logging.info(" %d nuevos productos encontrados" % new_urls)
+            print("[-] %d nuevos productos encontrados" % new_urls)
 
-            logging.info("Esperando %d segundos para volver a buscar" % sleep_time)
-            logging.info("#" * 50)
+            print("[-] Esperando %d segundos para volver a buscar" % sleep_time)
+            print("#" * 50)
 
             time.sleep(sleep_time)
+
+    def load_products_from_file(self, fichero):
+        with open(fichero.fichero_csv) as file:
+            csv_reader = csv.reader(file, delimiter=',')
+
+            for n_line, row in enumerate(csv_reader):
+                if n_line == 0:
+                    continue
+                self.products_in_csv.append(row[-1])
+
+        return self.products_in_csv
 
     @staticmethod
     def gen_url(busqueda, precio_minimo, precio_maximo):
@@ -140,7 +160,7 @@ class Crawler:
             self.driver.find_element_by_id("more-products-btn").click()
 
     def scroll_hasta_final(self):
-        scroll_pause_time = 1
+        scroll_pause_time = 2
 
         try:
             # Consigue la altura del scroll
@@ -165,12 +185,14 @@ class Crawler:
             last_height = new_height
 
     def get_product_urls(self):
-        res = []
+        res = set()
         soup = BeautifulSoup(self.driver.page_source, 'html.parser')
         for link in soup.find_all('a', href=re.compile('/item')):
-            if link['href'] not in self.known:
-                res.append(link['href'])
-        return res
+            if not any(link['href'] in url for url in self.known):
+                # res.append(link['href'])
+                res.add(link['href'])
+
+        return list(res)
 
     def get_product(self, product_link):
 

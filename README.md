@@ -109,7 +109,6 @@ optional arguments:
   --search SEARCH       Producto a buscar
   --min MIN             Define el precio mínimo de la búsqueda del producto
   --max MAX             Define el precio máximo de la búsqueda del producto
-  --limit LIMIT         Numero de productos que buscar por iteración
   --teleg {s,n}         Envío de mensajes por Telegram (activado por defecto)
   --headless {s,n}      Modo headless (sin interfaz)
   --db {s,n}            Conexión a base de datos[s/n]
@@ -121,7 +120,7 @@ optional arguments:
 Ejemplo
 
 ```shell
-$ python3 main.py --search bmw --min 10000 --max 10000 --limit 3 --teleg s
+$ python3 main.py --search bmw --min 10000 --max 10000 --teleg s
 ```
 
 ## Docker
